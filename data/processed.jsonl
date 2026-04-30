@@ -1,1 +1,3 @@
 {"id":"1","created_at":"2026-04-30T13:00:00Z","result":{"tasks":[],"notes":[{"text":"Jeg skal ringe til dyrlægen. Vi mangler mælk. Louie virkede træt efter skole","area":"unknown"}]}}
+{"id":"1","created_at":"2026-04-30T13:00:00Z","source":"manual","type":"text","result":{"tasks":[],"notes":[{"text":"Jeg skal ringe til dyrlægen. Vi mangler mælk. Louie virkede træt efter skole","area":"unknown"}]}}
+{"id":"2","created_at":"2026-04-30T14:40:00Z","source":"manual","type":"text","result":{"tasks":[],"notes":[{"text":"System test","area":"unknown"}]}}
