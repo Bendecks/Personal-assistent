@@ -1,0 +1,17 @@
+{
+  "name": "personal-assistent",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "process": "node src/index.js",
+    "cleanup": "node src/cleanup.js"
+  },
+  "dependencies": {
+    "@google/genai": "latest",
+    "uuid": "latest"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
