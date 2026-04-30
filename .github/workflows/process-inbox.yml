@@ -1,9 +1,13 @@
 name: Process Inbox
 
-permissions:
-  contents: write
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - 'data/inbox.jsonl'
+
+permissions:
+  contents: write
 
 jobs:
   process:
