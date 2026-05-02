@@ -39,12 +39,15 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
 
+      - name: Build review file
+        run: node src/build-review.js
+
       - name: Commit changes
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add data/*.jsonl
-          git commit -m "Capture and process issue #${{ github.event.issue.number }}" || echo "No changes"
+          git add data/*.jsonl data/review.md
+          git commit -m "Capture, process and build review for issue #${{ github.event.issue.number }}" || echo "No changes"
           git push
 
       - name: Close issue
