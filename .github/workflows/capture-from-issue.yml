@@ -4,8 +4,12 @@ on:
   issues:
     types: [opened]
 
+permissions:
+  contents: write
+  issues: write
+
 jobs:
-  capture:
+  capture-and-process:
     runs-on: ubuntu-latest
 
     steps:
@@ -17,21 +21,30 @@ jobs:
         with:
           node-version: 20
 
-      - name: Ensure data folder
-        run: mkdir -p data
+      - name: Install deps
+        run: npm install
 
-      - name: Ensure inbox file exists
-        run: touch data/inbox.jsonl
+      - name: Ensure data files exist
+        run: |
+          mkdir -p data
+          touch data/inbox.jsonl
+          touch data/processed.jsonl
+          touch data/archive.jsonl
 
       - name: Capture issue into inbox
         run: node src/capture-issue.js
+
+      - name: Process inbox
+        run: npm run process
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
 
       - name: Commit changes
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add data/inbox.jsonl
-          git commit -m "Capture issue #${{ github.event.issue.number }}"
+          git add data/*.jsonl
+          git commit -m "Capture and process issue #${{ github.event.issue.number }}" || echo "No changes"
           git push
 
       - name: Close issue
