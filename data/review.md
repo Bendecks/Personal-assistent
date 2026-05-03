@@ -1,6 +1,6 @@
 # Personal Assistent Review
 
-Updated: 2026-05-03T11:20:18.015Z
+Updated: 2026-05-03T11:21:00.828Z
 
 ## 🔥 Do Today
 
@@ -28,3 +28,4 @@ No urgent tasks.
 - Louie virkede træt efter skole. | child
 - Jeg tænker stadig over hvordan vi får bedre styr på Lego, men det skal ikke være en opgave endnu. | idea
 - Jonathan var træt. | child
+- Jeg har to hunde, Albie er en golden retriever og Ronja er en shih tzu/havaneser. | dog
