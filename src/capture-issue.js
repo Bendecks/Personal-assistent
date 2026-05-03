@@ -2,6 +2,7 @@ import fs from 'fs';
 
 const eventPath = process.env.GITHUB_EVENT_PATH;
 const inboxPath = './data/inbox.jsonl';
+const decisionsPath = './data/decisions.jsonl';
 
 if (!eventPath) {
   throw new Error('GITHUB_EVENT_PATH is missing');
@@ -21,6 +22,24 @@ const text = body.trim() || title.trim();
 
 if (!text) {
   console.log('No text to capture');
+  process.exit(0);
+}
+
+const decisionMatch = text.match(/^(done|dismiss):\s*(.+)$/i) || title.match(/^(done|dismiss):\s*(.+)$/i);
+
+if (decisionMatch) {
+  const decision = {
+    id: `decision-${issue.number}`,
+    created_at: issue.created_at || new Date().toISOString(),
+    source: 'github_issue_review_ui',
+    action: decisionMatch[1].toLowerCase(),
+    title: decisionMatch[2].trim(),
+    issue_number: issue.number,
+    issue_url: issue.html_url
+  };
+
+  fs.appendFileSync(decisionsPath, JSON.stringify(decision) + '\n');
+  console.log(`Captured decision #${issue.number}: ${decision.action}`);
   process.exit(0);
 }
 
