@@ -1,6 +1,6 @@
 # Personal Assistent Review
 
-Updated: 2026-05-03T11:21:00.828Z
+Updated: 2026-05-03T17:02:15.777Z
 
 ## 🔥 Do Today
 
@@ -16,6 +16,8 @@ No urgent tasks.
 - [ ] Ring til dyrlægen | dog
 - [ ] Køb mælk | shopping
 - [ ] Lav tavlen med ugens overblik | calendar
+- [ ] Skriv til Yale om nye skruer til dørhåndtag | house
+- [ ] Ring til skolen ang. UNIlogin til Louie og Charlie | child
 - [ ] Køb mælk | shopping
 - [ ] Køb mælk | shopping
 
