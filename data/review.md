@@ -1,6 +1,6 @@
 # Personal Assistent Review
 
-Updated: 2026-05-03T18:57:15.161Z
+Updated: 2026-05-03T19:14:27.419Z
 
 ## 🔥 Do Today
 
@@ -20,6 +20,7 @@ No urgent tasks.
 - [ ] Ring til skolen ang. UNIlogin til Louie og Charlie | child
 - [ ] Lug ukrudt i hækken ind mod Søren og Mathilde | house
 - [ ] Husk løbesko og idrætstøj til Louie | child
+- [ ] Kontakt Salta vedr. ny top til trampolinens sikkerhedsnet | house
 - [ ] Køb mælk | shopping
 - [ ] Køb mælk | shopping
 
