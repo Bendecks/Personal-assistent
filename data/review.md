@@ -1,6 +1,6 @@
 # Personal Assistent Review
 
-Updated: 2026-05-04T07:17:05.148Z
+Updated: 2026-05-04T07:32:12.560Z
 
 ## 🔥 Do Today
 
@@ -12,7 +12,6 @@ No medium tasks.
 
 ## ⚪ Low Priority
 
-- [ ] Køb mælk | shopping
 - [ ] Lav tavlen med ugens overblik | calendar
 - [ ] Skriv til Yale om nye skruer til dørhåndtag | house
 - [ ] Ring til skolen ang. UNIlogin til Louie og Charlie | child
@@ -20,8 +19,6 @@ No medium tasks.
 - [ ] Husk løbesko og idrætstøj til Louie | child
 - [ ] Kontakt Salta vedr. ny top til trampolinens sikkerhedsnet | house
 - [ ] Vask og smør Sylvesters cykel | child
-- [ ] Køb mælk | shopping
-- [ ] Køb mælk | shopping
 
 ## Notes
 
