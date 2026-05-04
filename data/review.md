@@ -1,6 +1,6 @@
 # Personal Assistent Review
 
-Updated: 2026-05-04T07:12:40.697Z
+Updated: 2026-05-04T07:17:05.148Z
 
 ## 🔥 Do Today
 
@@ -8,7 +8,7 @@ No urgent tasks.
 
 ## 🟡 Next Up
 
-- [ ] Pak drikkedunke og skiundertøj til Louie og Charlie | child | score:3
+No medium tasks.
 
 ## ⚪ Low Priority
 
