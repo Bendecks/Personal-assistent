@@ -25,11 +25,11 @@ button{margin:6px 6px 0 0;border:none;padding:8px 11px;border-radius:8px;font-si
 <div class="section"><h3>🟡 Next Up</h3><div id="next"></div></div>
 <div class="section"><h3>⚪ Low Priority</h3><div id="low"></div></div>
 <script>
-const SHORTCUT_NAME='Personal Assistent Decision';
+const SHORTCUT_NAME='Personal Assistent Capture';
 const REVIEW_URL='https://raw.githubusercontent.com/Bendecks/Personal-assistent/main/data/review.md?cache='+Date.now();
 const statusEl=document.getElementById('status');
 
-function runDecisionShortcut(action,text){
+function runShortcut(action,text){
   const command=action+': '+text;
   const url='shortcuts://run-shortcut?name='+encodeURIComponent(SHORTCUT_NAME)+'&input=text&text='+encodeURIComponent(command);
   window.location.href=url;
@@ -45,11 +45,11 @@ function createTask(line,container,level){
   const done=document.createElement('button');
   done.className='done';
   done.innerText='Udført';
-  done.onclick=()=>runDecisionShortcut('done',text);
+  done.onclick=()=>runShortcut('done',text);
   const dismiss=document.createElement('button');
   dismiss.className='dismiss';
   dismiss.innerText='Fjern';
-  dismiss.onclick=()=>runDecisionShortcut('dismiss',text);
+  dismiss.onclick=()=>runShortcut('dismiss',text);
   actions.appendChild(done);
   actions.appendChild(dismiss);
   el.appendChild(title);
@@ -79,7 +79,7 @@ async function load(){
       document.getElementById(id).innerHTML='<div class="empty">Ingen opgaver.</div>';
     }
   }
-  statusEl.innerText='Klar. Knapper åbner Shortcuts.';
+  statusEl.innerText='Klar. Knapper åbner din capture-shortcut.';
 }
 load();
 </script>
