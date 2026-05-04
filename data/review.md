@@ -1,6 +1,6 @@
 # Personal Assistent Review
 
-Updated: 2026-05-04T07:08:53.858Z
+Updated: 2026-05-04T07:10:32.358Z
 
 ## 🔥 Do Today
 
@@ -8,7 +8,6 @@ No urgent tasks.
 
 ## 🟡 Next Up
 
-- [ ] Ring til tandlægen | health | score:4
 - [ ] Pak drikkedunke og skiundertøj til Louie og Charlie | child | score:3
 
 ## ⚪ Low Priority
