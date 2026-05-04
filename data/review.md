@@ -1,6 +1,6 @@
 # Personal Assistent Review
 
-Updated: 2026-05-03T19:14:27.419Z
+Updated: 2026-05-04T07:08:53.858Z
 
 ## 🔥 Do Today
 
@@ -21,6 +21,7 @@ No urgent tasks.
 - [ ] Lug ukrudt i hækken ind mod Søren og Mathilde | house
 - [ ] Husk løbesko og idrætstøj til Louie | child
 - [ ] Kontakt Salta vedr. ny top til trampolinens sikkerhedsnet | house
+- [ ] Vask og smør Sylvesters cykel | child
 - [ ] Køb mælk | shopping
 - [ ] Køb mælk | shopping
 
