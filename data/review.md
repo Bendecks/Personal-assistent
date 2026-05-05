@@ -1,6 +1,6 @@
 # Personal Assistent Review
 
-Updated: 2026-05-05T08:58:09.885Z
+Updated: 2026-05-05T11:43:11.606Z
 
 ## 🔥 Do Today
 
@@ -9,6 +9,7 @@ No urgent tasks.
 ## 🟡 Next Up
 
 - [ ] Følg op på mail om familieabonnement til Padel | family | score:4
+- [ ] Notér ekstra vagt | work | score:3
 
 ## ⚪ Low Priority
 
@@ -34,3 +35,4 @@ No urgent tasks.
 - Louie har idræt om fredagen. | child
 - Jeg sendte i går en mail til Hjerting If om familieabonnement til Padel. | family
 - Jeg har sendt en e-mail til SACKit. | shopping
+- Ekstra vagt i weekenden: Lørdag kl. 13 til søndag kl. 7. | work
