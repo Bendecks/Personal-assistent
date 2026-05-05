@@ -1,6 +1,6 @@
 # Personal Assistent Review
 
-Updated: 2026-05-05T11:58:46.475Z
+Updated: 2026-05-05T14:29:06.849Z
 
 ## 🔥 Do Today
 
@@ -38,3 +38,5 @@ No urgent tasks.
 - Jeg sendte i går en mail til Hjerting If om familieabonnement til Padel. | family
 - Jeg har sendt en e-mail til SACKit. | shopping
 - Ekstra vagt i weekenden: Lørdag kl. 13 til søndag kl. 7. | work
+- Lukas fortæller at han stadig gerne vil købe en knallert, måske til juni. | family
+- Lukas vil stadig gerne spare op til en computer, men først efter sommer da han ikke regner med at være meget hjemme hen over sommeren. | family
