@@ -1,6 +1,6 @@
 # Personal Assistent Review
 
-Updated: 2026-05-05T08:33:57.997Z
+Updated: 2026-05-05T08:58:09.885Z
 
 ## 🔥 Do Today
 
@@ -19,7 +19,6 @@ No urgent tasks.
 - [ ] Husk løbesko og idrætstøj til Louie | child
 - [ ] Kontakt Salta vedr. ny top til trampolinens sikkerhedsnet | house
 - [ ] Vask og smør Sylvesters cykel | child
-- [ ] Ændre Jonathans tandlægetid | child
 - [ ] Send ny mail til SACKit | shopping
 
 ## Notes
