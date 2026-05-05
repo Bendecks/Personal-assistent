@@ -1,6 +1,6 @@
 # Personal Assistent Review
 
-Updated: 2026-05-05T07:10:08.855Z
+Updated: 2026-05-05T08:33:57.997Z
 
 ## 🔥 Do Today
 
@@ -20,6 +20,7 @@ No urgent tasks.
 - [ ] Kontakt Salta vedr. ny top til trampolinens sikkerhedsnet | house
 - [ ] Vask og smør Sylvesters cykel | child
 - [ ] Ændre Jonathans tandlægetid | child
+- [ ] Send ny mail til SACKit | shopping
 
 ## Notes
 
@@ -33,3 +34,4 @@ No urgent tasks.
 - Jeg har to hunde, Albie er en golden retriever og Ronja er en shih tzu/havaneser. | dog
 - Louie har idræt om fredagen. | child
 - Jeg sendte i går en mail til Hjerting If om familieabonnement til Padel. | family
+- Jeg har sendt en e-mail til SACKit. | shopping
