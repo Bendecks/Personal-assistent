@@ -1,6 +1,6 @@
 # Personal Assistent Review
 
-Updated: 2026-05-05T04:12:26.585Z
+Updated: 2026-05-05T07:10:08.855Z
 
 ## 🔥 Do Today
 
@@ -8,7 +8,7 @@ No urgent tasks.
 
 ## 🟡 Next Up
 
-No medium tasks.
+- [ ] Følg op på mail om familieabonnement til Padel | family | score:4
 
 ## ⚪ Low Priority
 
@@ -32,3 +32,4 @@ No medium tasks.
 - Jonathan var træt. | child
 - Jeg har to hunde, Albie er en golden retriever og Ronja er en shih tzu/havaneser. | dog
 - Louie har idræt om fredagen. | child
+- Jeg sendte i går en mail til Hjerting If om familieabonnement til Padel. | family
