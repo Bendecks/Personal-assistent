@@ -1,6 +1,6 @@
 # Personal Assistent Review
 
-Updated: 2026-05-05T14:29:06.849Z
+Updated: 2026-05-05T14:29:43.603Z
 
 ## 🔥 Do Today
 
@@ -40,3 +40,4 @@ No urgent tasks.
 - Ekstra vagt i weekenden: Lørdag kl. 13 til søndag kl. 7. | work
 - Lukas fortæller at han stadig gerne vil købe en knallert, måske til juni. | family
 - Lukas vil stadig gerne spare op til en computer, men først efter sommer da han ikke regner med at være meget hjemme hen over sommeren. | family
+- Lucas fortæller i god tid at han ikke spiser hjemme, han tager på Sundet med to kammerater i stedet. | family
