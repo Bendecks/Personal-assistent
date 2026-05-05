@@ -1,6 +1,6 @@
 # Personal Assistent Review
 
-Updated: 2026-05-05T11:43:11.606Z
+Updated: 2026-05-05T11:58:46.475Z
 
 ## 🔥 Do Today
 
@@ -10,6 +10,8 @@ No urgent tasks.
 
 - [ ] Følg op på mail om familieabonnement til Padel | family | score:4
 - [ ] Notér ekstra vagt | work | score:3
+- [ ] Bestil parkering til Cypern-rejse | work | score:3
+- [ ] Bestil rejseforsikring ved Gouda | work | score:3
 
 ## ⚪ Low Priority
 
