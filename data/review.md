@@ -1,6 +1,6 @@
 # Personal Assistent Review
 
-Updated: 2026-05-06T05:07:17.189Z
+Updated: 2026-05-06T10:22:49.051Z
 
 ## 🔥 Do Today
 
@@ -26,6 +26,8 @@ No urgent tasks.
 - [ ] Svømmeaflysning 7. maj | child
 - [ ] Svømmeaflysning 21. maj | child
 - [ ] Svømmeaflysning 11. juni | child
+- [ ] Fyld vaskemiddel i vaskemaskinen | house
+- [ ] Skift moppepuder på støvsugeren | house
 
 ## Notes
 
