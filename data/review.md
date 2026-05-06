@@ -1,6 +1,6 @@
 # Personal Assistent Review
 
-Updated: 2026-05-05T14:29:43.603Z
+Updated: 2026-05-06T05:07:17.189Z
 
 ## 🔥 Do Today
 
@@ -23,6 +23,9 @@ No urgent tasks.
 - [ ] Kontakt Salta vedr. ny top til trampolinens sikkerhedsnet | house
 - [ ] Vask og smør Sylvesters cykel | child
 - [ ] Send ny mail til SACKit | shopping
+- [ ] Svømmeaflysning 7. maj | child
+- [ ] Svømmeaflysning 21. maj | child
+- [ ] Svømmeaflysning 11. juni | child
 
 ## Notes
 
@@ -41,3 +44,4 @@ No urgent tasks.
 - Lukas fortæller at han stadig gerne vil købe en knallert, måske til juni. | family
 - Lukas vil stadig gerne spare op til en computer, men først efter sommer da han ikke regner med at være meget hjemme hen over sommeren. | family
 - Lucas fortæller i god tid at han ikke spiser hjemme, han tager på Sundet med to kammerater i stedet. | family
+- Info fra Hjerting Skole om aflyst svømning for 3A og 3B på grund af lærerfravær (Kenneth Peder Ibsen). Klassen får almindelig idræt. | child
