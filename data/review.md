@@ -1,6 +1,6 @@
 # Personal Assistent Review
 
-Updated: 2026-05-06T10:23:23.477Z
+Updated: 2026-05-11T11:55:44.328Z
 
 ## 🔥 Do Today
 
@@ -29,6 +29,7 @@ No urgent tasks.
 - [ ] Fyld vaskemiddel i vaskemaskinen | house
 - [ ] Skift moppepuder på støvsugeren | house
 - [ ] Book tid til kontrol for Louie | child
+- [ ] Print returlabel | shopping
 
 ## Notes
 
@@ -48,3 +49,6 @@ No urgent tasks.
 - Lukas vil stadig gerne spare op til en computer, men først efter sommer da han ikke regner med at være meget hjemme hen over sommeren. | family
 - Lucas fortæller i god tid at han ikke spiser hjemme, han tager på Sundet med to kammerater i stedet. | family
 - Info fra Hjerting Skole om aflyst svømning for 3A og 3B på grund af lærerfravær (Kenneth Peder Ibsen). Klassen får almindelig idræt. | child
+- Måske printe noget fra mormor. | family
+- Det kunne være den togbillet vi bestilte. | family
+- Er ikke helt sikker. | diary
