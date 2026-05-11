@@ -1,6 +1,6 @@
 # Personal Assistent Review
 
-Updated: 2026-05-11T11:55:44.328Z
+Updated: 2026-05-11T12:00:54.497Z
 
 ## 🔥 Do Today
 
@@ -30,6 +30,7 @@ No urgent tasks.
 - [ ] Skift moppepuder på støvsugeren | house
 - [ ] Book tid til kontrol for Louie | child
 - [ ] Print returlabel | shopping
+- [ ] Kig efter nøgle til Sylvesters cykel | child
 
 ## Notes
 
@@ -52,3 +53,4 @@ No urgent tasks.
 - Måske printe noget fra mormor. | family
 - Det kunne være den togbillet vi bestilte. | family
 - Er ikke helt sikker. | diary
+- Nøgle til Sylvesters cykel kunne ligge i krukken i bryggerset, hvor vi har nøgler. | child
