@@ -1,15 +1,21 @@
 {
   "name": "personal-assistent",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0",
     "process": "node src/index.js",
     "cleanup": "node src/cleanup.js"
   },
   "dependencies": {
     "@google/genai": "latest",
     "uuid": "latest"
+  },
+  "devDependencies": {
+    "vite": "latest"
   },
   "engines": {
     "node": ">=20"
