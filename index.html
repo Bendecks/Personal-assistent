@@ -59,20 +59,25 @@
         <div class="panel-header">
           <div>
             <h2>Screenshot-import</h2>
-            <p>Gem beskeder og skærmbilleder som information, dokumentation eller opgaver.</p>
+            <p>Kopiér et screenshot fra Sensum eller Windows, klik i feltet og tryk Ctrl+V.</p>
           </div>
         </div>
 
         <form id="screenshotForm" class="screenshot-form">
           <div class="screenshot-grid">
-            <label class="file-drop" for="screenshotFile">
-              <span>Vælg screenshot</span>
-              <small>Gemmes lokalt i browseren sammen med teksten, hvis billedet ikke er for stort.</small>
-              <input id="screenshotFile" type="file" accept="image/*" />
-            </label>
+            <div id="pasteTarget" class="paste-target" tabindex="0" role="button" aria-label="Indsæt screenshot fra udklipsholder">
+              <span>Klik her og tryk Ctrl+V</span>
+              <small>Du behøver ikke gemme billedet som fil først. Billedet bruges som preview og kilde i browseren.</small>
+              <button id="clearScreenshotButton" class="secondary mini" type="button">Ryd billede</button>
+            </div>
 
-            <div id="screenshotPreview" class="screenshot-preview empty">Ingen screenshot valgt.</div>
+            <div id="screenshotPreview" class="screenshot-preview empty">Intet billede indsat endnu.</div>
           </div>
+
+          <details class="fallback-upload">
+            <summary>Fallback: vælg billedfil manuelt</summary>
+            <input id="screenshotFile" type="file" accept="image/*" />
+          </details>
 
           <div class="capture-actions screenshot-fields">
             <select id="screenshotType" aria-label="Screenshot-type">
@@ -101,7 +106,7 @@
             <button type="submit">Gem screenshot-info</button>
           </div>
 
-          <p id="screenshotStatus" class="hint">Tip: Første version læser ikke billedtekst automatisk. Brug feltet til at gemme den vigtige tekst, eller indsæt AI-udtrækket bagefter.</p>
+          <p id="screenshotStatus" class="hint">Klar: klik i pastefeltet og tryk Ctrl+V. Første version læser ikke teksten automatisk.</p>
         </form>
       </section>
 

@@ -60,6 +60,12 @@ button.full {
   margin-top: 0.75rem;
 }
 
+button.mini {
+  justify-self: center;
+  margin-top: 0.5rem;
+  padding: 0.55rem 0.8rem;
+}
+
 .app-shell {
   width: min(1180px, calc(100% - 24px));
   margin: 0 auto;
@@ -195,40 +201,59 @@ input[type="text"]:focus {
   gap: 12px;
 }
 
-.file-drop {
+.paste-target {
   display: grid;
   gap: 0.35rem;
   place-content: center;
-  min-height: 190px;
-  border: 2px dashed var(--line);
+  min-height: 210px;
+  border: 3px dashed var(--accent);
   border-radius: 22px;
   background: #fffdf9;
   padding: 18px;
   text-align: center;
-  cursor: pointer;
+  cursor: text;
 }
 
-.file-drop span {
+.paste-target:focus {
+  outline: 4px solid rgba(47, 95, 91, 0.2);
+  border-color: var(--accent-strong);
+}
+
+.paste-target span {
   color: var(--accent);
-  font-size: 1.1rem;
-  font-weight: 900;
+  font-size: 1.35rem;
+  font-weight: 950;
 }
 
-.file-drop small {
+.paste-target small {
+  max-width: 520px;
   color: var(--muted);
   font-weight: 500;
   line-height: 1.4;
 }
 
-.file-drop input {
-  margin: 0 auto;
-  max-width: 260px;
+.fallback-upload {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: #fffdf9;
+  padding: 0.8rem 0.9rem;
+}
+
+.fallback-upload summary {
+  color: var(--accent);
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.fallback-upload input {
+  display: block;
+  margin-top: 0.75rem;
 }
 
 .screenshot-preview {
   display: grid;
   place-items: center;
-  min-height: 190px;
+  min-height: 210px;
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: 22px;

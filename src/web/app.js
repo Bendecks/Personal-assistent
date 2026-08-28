@@ -1,12 +1,15 @@
 const STORAGE_KEY = 'arbejdscentral.items.v2';
 const ROUTINE_KEY = 'arbejdscentral.routines.v1';
 const LEGACY_STORAGE_KEY = 'arbejdscentral.items.v1';
+const MAX_STORED_IMAGE_BYTES = 900_000;
 
 const form = document.querySelector('#captureForm');
 const textInput = document.querySelector('#captureText');
 const typeInput = document.querySelector('#captureType');
 const urgencyInput = document.querySelector('#captureUrgency');
 const screenshotForm = document.querySelector('#screenshotForm');
+const pasteTarget = document.querySelector('#pasteTarget');
+const clearScreenshotButton = document.querySelector('#clearScreenshotButton');
 const screenshotFile = document.querySelector('#screenshotFile');
 const screenshotPreview = document.querySelector('#screenshotPreview');
 const screenshotType = document.querySelector('#screenshotType');
@@ -175,7 +178,7 @@ function renderTasks() {
         </div>
         <div class="task-text">${escapeHtml(item.text)}</div>
         ${item.sourceDate ? `<div class="task-note">Dato/tid: ${escapeHtml(item.sourceDate)}</div>` : ''}
-        ${item.imageDataUrl ? `<details class="screenshot-details"><summary>Vis screenshot</summary><img src="${item.imageDataUrl}" alt="Gemt screenshot" /></details>` : ''}
+        ${item.imageDataUrl ? `<details class="screenshot-details"><summary>Vis billede</summary><img src="${item.imageDataUrl}" alt="Indsat screenshot" /></details>` : ''}
       </div>
       <div class="task-actions">
         <button class="secondary" data-action="lower" data-id="${item.id}">Sænk</button>
@@ -240,6 +243,60 @@ function buildScreenshotText() {
   return chunks.join('\n');
 }
 
+function setScreenshotPreview({ dataUrl, name, size, source }) {
+  const shouldStoreImage = size <= MAX_STORED_IMAGE_BYTES;
+  pendingScreenshot = {
+    name,
+    size,
+    source,
+    dataUrl: shouldStoreImage ? dataUrl : ''
+  };
+
+  screenshotPreview.className = 'screenshot-preview';
+  screenshotPreview.innerHTML = `<img src="${dataUrl}" alt="Indsat screenshot" />`;
+
+  const sourceLabel = source === 'clipboard' ? 'Indsat fra udklipsholder.' : 'Valgt som fil.';
+  screenshotStatus.textContent = shouldStoreImage
+    ? `${sourceLabel} Billedet gemmes kun i browserens lokale lager sammen med posten.`
+    : `${sourceLabel} Billedet er stort. Appen gemmer teksten, men ikke selve billedet.`;
+}
+
+function clearPendingScreenshot() {
+  pendingScreenshot = null;
+  screenshotFile.value = '';
+  screenshotPreview.className = 'screenshot-preview empty';
+  screenshotPreview.textContent = 'Intet billede indsat endnu.';
+  screenshotStatus.textContent = 'Klar: klik i pastefeltet og tryk Ctrl+V. Første version læser ikke teksten automatisk.';
+}
+
+function readImageFile(file, source) {
+  if (!file || !file.type.startsWith('image/')) return;
+
+  const reader = new FileReader();
+  reader.addEventListener('load', () => {
+    setScreenshotPreview({
+      dataUrl: String(reader.result || ''),
+      name: source === 'clipboard' ? 'clipboard-screenshot' : file.name,
+      size: file.size,
+      source
+    });
+  });
+  reader.readAsDataURL(file);
+}
+
+function handlePaste(event) {
+  const files = [...(event.clipboardData?.files || [])];
+  const imageFile = files.find((file) => file.type.startsWith('image/'));
+
+  if (!imageFile) {
+    screenshotStatus.textContent = 'Udklipsholderen indeholder ikke et billede. Kopiér screenshotet og prøv igen.';
+    return;
+  }
+
+  event.preventDefault();
+  readImageFile(imageFile, 'clipboard');
+}
+
 form.addEventListener('submit', (event) => {
   event.preventDefault();
   const text = textInput.value.trim();
@@ -265,33 +322,19 @@ form.addEventListener('submit', (event) => {
   render();
 });
 
+pasteTarget.addEventListener('click', () => pasteTarget.focus());
+pasteTarget.addEventListener('paste', handlePaste);
+screenshotForm.addEventListener('paste', handlePaste);
+
+clearScreenshotButton.addEventListener('click', clearPendingScreenshot);
+
 screenshotFile.addEventListener('change', () => {
   const file = screenshotFile.files?.[0];
-  pendingScreenshot = null;
-
   if (!file) {
-    screenshotPreview.className = 'screenshot-preview empty';
-    screenshotPreview.textContent = 'Ingen screenshot valgt.';
+    clearPendingScreenshot();
     return;
   }
-
-  const reader = new FileReader();
-  reader.addEventListener('load', () => {
-    const dataUrl = String(reader.result || '');
-    const shouldStoreImage = file.size <= 900_000;
-    pendingScreenshot = {
-      name: file.name,
-      size: file.size,
-      dataUrl: shouldStoreImage ? dataUrl : ''
-    };
-
-    screenshotPreview.className = 'screenshot-preview';
-    screenshotPreview.innerHTML = `<img src="${dataUrl}" alt="Valgt screenshot" />`;
-    screenshotStatus.textContent = shouldStoreImage
-      ? 'Screenshotet kan gemmes lokalt sammen med posten.'
-      : 'Screenshotet er stort. Appen gemmer teksten og filnavnet, men ikke selve billedet.';
-  });
-  reader.readAsDataURL(file);
+  readImageFile(file, 'file');
 });
 
 screenshotForm.addEventListener('submit', (event) => {
@@ -318,7 +361,7 @@ screenshotForm.addEventListener('submit', (event) => {
   screenshotForm.reset();
   pendingScreenshot = null;
   screenshotPreview.className = 'screenshot-preview empty';
-  screenshotPreview.textContent = 'Ingen screenshot valgt.';
+  screenshotPreview.textContent = 'Intet billede indsat endnu.';
   screenshotStatus.textContent = 'Gemt. Screenshot-info er sorteret ind i arbejdsoverblikket.';
 
   writeState();
