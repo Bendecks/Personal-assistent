@@ -38,6 +38,7 @@
           <div class="capture-actions">
             <select id="captureType" aria-label="Type">
               <option value="aktiv arbejdsopgave">Aktiv arbejdsopgave</option>
+              <option value="information">Information</option>
               <option value="venter på svar">Venter på svar</option>
               <option value="møde/aftale">Møde/aftale</option>
               <option value="rutine">Rutine</option>
@@ -51,6 +52,56 @@
             </select>
             <button type="submit">Gem note</button>
           </div>
+        </form>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Screenshot-import</h2>
+            <p>Gem beskeder og skærmbilleder som information, dokumentation eller opgaver.</p>
+          </div>
+        </div>
+
+        <form id="screenshotForm" class="screenshot-form">
+          <div class="screenshot-grid">
+            <label class="file-drop" for="screenshotFile">
+              <span>Vælg screenshot</span>
+              <small>Gemmes lokalt i browseren sammen med teksten, hvis billedet ikke er for stort.</small>
+              <input id="screenshotFile" type="file" accept="image/*" />
+            </label>
+
+            <div id="screenshotPreview" class="screenshot-preview empty">Ingen screenshot valgt.</div>
+          </div>
+
+          <div class="capture-actions screenshot-fields">
+            <select id="screenshotType" aria-label="Screenshot-type">
+              <option value="information">Information</option>
+              <option value="aktiv arbejdsopgave">Aktiv arbejdsopgave</option>
+              <option value="venter på svar">Venter på svar</option>
+              <option value="møde/aftale">Møde/aftale</option>
+              <option value="dokumentation">Dokumentation</option>
+              <option value="rutine">Rutine</option>
+              <option value="parkeret">Parkeret</option>
+            </select>
+            <input id="screenshotArea" type="text" placeholder="Område, fx A3 værelse" />
+            <select id="screenshotUrgency" aria-label="Prioritet">
+              <option value="normal">Normal</option>
+              <option value="høj">Høj</option>
+              <option value="lav">Lav</option>
+            </select>
+          </div>
+
+          <label for="screenshotText">Tekst / udtræk fra screenshot</label>
+          <textarea id="screenshotText" rows="5" placeholder="Fx: Helle Klausen · 19-08-2026 21:34 · A3 værelse · Har aftalt med A3 at vi ordner værelset på søndag"></textarea>
+
+          <div class="capture-actions screenshot-fields">
+            <input id="screenshotSender" type="text" placeholder="Afsender, fx Helle Klausen" />
+            <input id="screenshotDate" type="text" placeholder="Dato/tid, fx 19-08-2026 21:34" />
+            <button type="submit">Gem screenshot-info</button>
+          </div>
+
+          <p id="screenshotStatus" class="hint">Tip: Første version læser ikke billedtekst automatisk. Brug feltet til at gemme den vigtige tekst, eller indsæt AI-udtrækket bagefter.</p>
         </form>
       </section>
 
@@ -89,6 +140,7 @@
           <div class="filters" role="group" aria-label="Filter opgaver">
             <button class="filter active" data-filter="alle">Alle</button>
             <button class="filter" data-filter="aktiv arbejdsopgave">Aktive</button>
+            <button class="filter" data-filter="information">Information</button>
             <button class="filter" data-filter="venter på svar">Venter</button>
             <button class="filter" data-filter="rutine">Rutiner</button>
             <button class="filter" data-filter="dokumentation">Dokumentation</button>
