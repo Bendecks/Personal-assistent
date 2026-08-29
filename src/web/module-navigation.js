@@ -3,7 +3,8 @@ const MODULES = [
     id: 'dashboard',
     label: 'Start',
     title: 'Start og næste handling',
-    selectors: ['.hero', '.grid:nth-of-type(4)']
+    selectors: ['.hero'],
+    heading: 'Næste handling'
   },
   {
     id: 'inbox',
