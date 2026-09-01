@@ -25,6 +25,12 @@ const MODULES = [
     heading: 'Dokument-import'
   },
   {
+    id: 'memory',
+    label: 'Hukommelse',
+    title: 'Lokal dokumentationshukommelse',
+    heading: 'Hukommelse'
+  },
+  {
     id: 'overview',
     label: 'Overblik',
     title: 'Arbejdsoverblik',
