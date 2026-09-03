@@ -4,18 +4,31 @@ Formål: give webappen et lille privat mellemled til Google Sheet-fanen `SensumK
 
 Dette undgår at konkrete Sensum-notater gemmes i det offentlige GitHub-repo.
 
-## 1. Opret Apps Script
+## Hurtigste opsætning
 
-1. Åbn Google Sheet: `ChatGPT Arbejde-hukommelse`
-2. Vælg **Udvidelser → Apps Script**
-3. Indsæt koden herunder
-4. Gem projektet som `SensumKladder API`
-5. Deploy som **Web app**
-6. Kør som: **Mig**
-7. Hvem har adgang: vælg den mest lukkede mulighed der stadig virker for din webapp/test
-8. Kopiér Web app URL'en ind i webappens Sensum-modul som API-endpoint
+1. Åbn Google Sheet: `ChatGPT Arbejde-hukommelse`.
+2. Vælg **Udvidelser → Apps Script**.
+3. Slet eventuel startkode i editoren.
+4. Indsæt hele koden fra afsnittet **Apps Script-kode** nedenfor.
+5. Tryk **Gem**.
+6. Navngiv projektet: `SensumKladder API`.
+7. Vælg **Implementer → Ny implementering**.
+8. Vælg typen **Webapp**.
+9. Beskrivelse: `SensumKladder API`.
+10. **Udfør som:** `Mig`.
+11. **Hvem har adgang:** start med `Alle med linket`, hvis webappen skal kunne kalde endpointet uden Google-login. Skift til mere lukket adgang senere, hvis det virker med din konto.
+12. Tryk **Implementer**.
+13. Godkend rettigheder, når Google beder om det.
+14. Kopiér **Webapp-URL**.
+15. Åbn webappen: `https://bendecks.github.io/Personal-assistent/`.
+16. Gå til **Sensum**.
+17. Indsæt URL'en i feltet **API-endpoint**.
+18. Tryk **Gem endpoint**.
+19. Tryk **Synkronisér**.
 
-## 2. Apps Script-kode
+Hvis det virker, skal du kunne se kladderne fra fanen `SensumKladder`.
+
+## Apps Script-kode
 
 ```javascript
 const SHEET_NAME = 'SensumKladder';
@@ -162,7 +175,19 @@ function jsonResponse(data) {
 }
 ```
 
-## 3. Dataflow
+## Test i browser
+
+Når webappen er deployet, kan du åbne Webapp-URL'en direkte i browseren.
+
+Du bør se noget i stil med:
+
+```json
+{"ok":true,"service":"SensumKladder API"}
+```
+
+Derefter testes den rigtige funktion fra arbejdswebappen via knappen **Synkronisér** i Sensum-modulet.
+
+## Dataflow
 
 ```text
 ChatGPT skriver kladde i SensumKladder
@@ -173,8 +198,9 @@ ChatGPT skriver kladde i SensumKladder
 → Apps Script opdaterer rækken i Google Sheet
 ```
 
-## 4. Vigtigt
+## Vigtigt
 
 - Notater må ikke gemmes i GitHub.
 - Sheetet er den fælles arbejdshukommelse.
 - Webappen må kun have endpoint-URL gemt lokalt i browseren.
+- Apps Script skal altid være oprettet fra selve Google Sheetet, så `SpreadsheetApp.getActiveSpreadsheet()` peger på det rigtige ark.
