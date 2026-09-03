@@ -25,6 +25,7 @@ Når ChatGPT hjælper med dagbogsnotater, skal notaterne være:
 - uden unødige vurderinger eller dømmende formuleringer
 - opdelt efter relevante Sensum-kategorier, når det giver mening
 - klar til at kopiere direkte ind i Sensum
+- gemt som kladde i Google Sheet-fanen `SensumKladder`, når brugeren har bedt om eller etableret automatisk kladdeopsamling
 
 Når der skrives notat på ét barn/én ung, må andre børn/unge ikke nævnes ved navn.
 
@@ -38,21 +39,62 @@ Fast anonymiseringsregel:
 
 I barnets eget notat bruges barnets navn. I andre børns notater bruges A-nummer.
 
+## Fælles lager for Sensum-kladdder
+
+Konkrete dagbogsnotater må ikke gemmes i det offentlige GitHub-repo.
+
+Fælles lager er Google Sheet `ChatGPT Arbejde-hukommelse`, fanen `SensumKladder`.
+
+Når ChatGPT formulerer dagbogsnotater, skal kladderne gemmes dér med disse felter:
+
+- ID
+- Oprettet
+- Barn/ung
+- Kategori
+- Titel
+- Notattekst
+- Status
+- Ført i Sensum
+- Ført dato
+- Kilde
+- Oprettet af
+- Kommentar
+
+Standardstatus ved oprettelse:
+
+- Status: `Kladde`
+- Ført i Sensum: `Nej`
+- Kilde: `ChatGPT`
+
 ## Webapp og Sensum-notater
 
-Når ChatGPT formulerer dagbogsnotater, skal svaret fremover også tænkes som input til webappens Sensum-modul.
+Webappens Sensum-modul skal bruge `SensumKladder` som fælles kladdelager, ikke GitHub.
 
-Webappen har et Sensum-modul til:
+Målet er dette flow:
 
-- at gemme klargjorte dagbogsnotater lokalt
-- at kopiere notatteksten
-- at markere et notat som ført i Sensum
-- at rydde førte notater
+```text
+Live-samtale med ChatGPT
+→ ChatGPT skriver dagbogsnotater
+→ ChatGPT gemmer kladder i SensumKladder
+→ Webappen henter kladderne fra Google Sheet via et sikkert mellemled
+→ Bendix kopierer/overfører notatet til Sensum
+→ Bendix markerer notatet som ført
+→ Google Sheet opdateres
+```
 
-Begrænsning: ChatGPT kan ikke direkte skrive ind i brugerens lokale browserlager fra chatten. Derfor skal ChatGPT enten give teksten, så den kan kopieres ind i Sensum-modulet, eller give et webapp-kompatibelt notatformat, når brugeren beder om det.
+Webappen må gerne have lokal fallback, men lokal browserhukommelse er ikke hovedløsningen.
+
+GitHub må kun indeholde:
+
+- webapp-kode
+- skabeloner
+- projektregler
+- teknisk dokumentation
+
+GitHub må ikke indeholde konkrete Sensum-notater om børn/unge.
 
 ## Arbejdshukommelse
 
-Google Sheet "ChatGPT Arbejde-hukommelse" er fortsat den eksterne sandhedskilde for arbejdsopgaver og opfølgninger.
+Google Sheet `ChatGPT Arbejde-hukommelse` er den eksterne sandhedskilde for arbejdsopgaver, opfølgninger, regler og Sensum-kladdestatus.
 
-Webappen bruges som praktisk lokalt arbejdsbord. Følsomme oplysninger skal ikke gemmes i GitHub.
+Webappen bruges som praktisk arbejdsbord ovenpå arket.
