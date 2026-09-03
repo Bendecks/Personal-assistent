@@ -10,7 +10,6 @@ sensumStyle.textContent = `
 .sensum-note-actions, .sensum-note-card-actions { display: flex; flex-wrap: wrap; gap: 10px; }
 .sensum-note-list { display: grid; gap: 12px; margin-top: 14px; }
 .sensum-note-card { border: 1px solid var(--line); border-left: 6px solid var(--accent); border-radius: 20px; background: #fffdf9; padding: 14px; }
-.sensum-note-card.done { opacity: 0.68; border-left-color: var(--ok); }
 .sensum-note-card.remote { border-left-color: var(--warn); }
 .sensum-note-card header { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
 .sensum-note-card pre { white-space: pre-wrap; font: inherit; line-height: 1.45; margin: 0 0 12px; }
@@ -28,13 +27,13 @@ sensumPanel.innerHTML = `
   <div class="panel-header">
     <div>
       <h2>Sensum-notater</h2>
-      <p>Notater formuleret i ChatGPT, klar til kopiering og afkrydsning når de er ført i Sensum.</p>
+      <p>Aktive kladder fra ChatGPT. Når et notat er ført i Sensum, fjernes det fra listen.</p>
     </div>
   </div>
 
   <details class="sensum-sync-box" open>
     <summary>Synkronisering med SensumKladder</summary>
-    <p class="hint">Når API-endpoint er sat, henter modulet kladder fra Google Sheet og kan markere dem som ført.</p>
+    <p class="hint">Når API-endpoint er sat, henter modulet aktive kladder fra Google Sheet og kan markere dem som ført.</p>
     <div class="sensum-sync-grid">
       <label>
         API-endpoint
@@ -69,7 +68,7 @@ sensumPanel.innerHTML = `
       <button type="button" id="clearSensumDoneButton" class="secondary">Ryd førte lokale notater</button>
     </div>
 
-    <p id="sensumStatus" class="hint">Førstevalg: Synkronisér fra SensumKladder. Lokal gem er fallback.</p>
+    <p id="sensumStatus" class="hint">Listen viser kun notater, der endnu ikke er ført i Sensum.</p>
   </form>
 
   <div id="sensumNoteList" class="sensum-note-list"></div>
@@ -167,6 +166,10 @@ function isDone(note) {
   return status === 'ført' || status === 'foert' || completed === 'ja';
 }
 
+function visibleNotes(notes) {
+  return notes.filter((note) => !isDone(note));
+}
+
 function mergeNotes(remoteNotes, localNotes) {
   const byId = new Map();
   for (const note of [...remoteNotes, ...localNotes]) {
@@ -176,9 +179,9 @@ function mergeNotes(remoteNotes, localNotes) {
   return [...byId.values()];
 }
 
-function getSortedNotes() {
-  return readSensumNotes().map(normalizeSensumNote)
-    .sort((a, b) => Number(isDone(a)) - Number(isDone(b)) || new Date(b.createdAt) - new Date(a.createdAt));
+function getActiveSortedNotes() {
+  return visibleNotes(readSensumNotes().map(normalizeSensumNote))
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 }
 
 async function copyTextToClipboard(text) {
@@ -236,7 +239,7 @@ async function syncFromSheet() {
     const localOnly = readSensumNotes().map(normalizeSensumNote).filter((note) => !note.rowNumber);
     writeSensumNotes(mergeNotes(remoteNotes, localOnly));
     renderSensumNotes();
-    setStatus(`Synkroniseret: ${remoteNotes.length} kladder hentet fra Google Sheet.`);
+    setStatus(`Synkroniseret: ${visibleNotes(remoteNotes).length} aktive kladder hentet fra Google Sheet.`);
   } catch (error) {
     setStatus(`Synkronisering fejlede: ${error.message}. Lokal fallback virker stadig.`);
   } finally {
@@ -262,13 +265,13 @@ async function handleDone(noteId, button) {
   if (note.rowNumber && getEndpoint()) {
     try {
       await apiRequest({ action: 'markDone', rowNumber: note.rowNumber, id: note.id });
-      setStatus('Notatet er markeret som ført i Sensum i Google Sheet.');
+      setStatus('Notatet er ført og fjernet fra den aktive liste. Google Sheet er opdateret.');
       await syncFromSheet();
     } catch (error) {
-      setStatus(`Notatet er markeret lokalt. Sheet-opdatering fejlede: ${error.message}`);
+      setStatus(`Notatet er ført og fjernet lokalt. Sheet-opdatering fejlede: ${error.message}`);
     }
   } else {
-    setStatus('Notatet er markeret som ført i Sensum lokalt.');
+    setStatus('Notatet er ført og fjernet fra den aktive liste.');
   }
 }
 
@@ -301,34 +304,33 @@ function attachCardHandlers(card, note) {
 }
 
 function renderSensumNotes() {
-  const notes = getSortedNotes();
+  const notes = getActiveSortedNotes();
   sensumNoteList.innerHTML = '';
 
   if (!notes.length) {
-    sensumNoteList.innerHTML = '<div class="sensum-note-empty">Ingen klargjorte Sensum-notater endnu.</div>';
+    sensumNoteList.innerHTML = '<div class="sensum-note-empty">Ingen aktive Sensum-kladdder. Førte notater vises ikke her.</div>';
     return;
   }
 
   for (const note of notes) {
-    const done = isDone(note);
     const remote = note.source === 'Google Sheet' || Boolean(note.rowNumber);
     const card = document.createElement('article');
-    card.className = `sensum-note-card ${done ? 'done' : ''} ${remote ? 'remote' : ''}`;
+    card.className = `sensum-note-card ${remote ? 'remote' : ''}`;
     card.innerHTML = `
       <header>
         <span class="pill">${escapeSensumHtml(note.citizen || 'Ukendt')}</span>
         <span class="pill">${escapeSensumHtml(note.category)}</span>
-        <span class="pill">${escapeSensumHtml(done ? 'ført' : note.status)}</span>
+        <span class="pill">${escapeSensumHtml(note.status)}</span>
         ${remote ? '<span class="pill">Google Sheet</span>' : '<span class="pill">lokal</span>'}
         ${note.title ? `<span class="pill">${escapeSensumHtml(note.title)}</span>` : ''}
       </header>
       <pre>${escapeSensumHtml(note.text)}</pre>
       <div class="sensum-note-card-actions">
         <button type="button" class="secondary" data-action="copy">Kopiér tekst</button>
-        <button type="button" class="secondary" data-action="done">${done ? 'Ført i Sensum' : 'Markér ført i Sensum'}</button>
+        <button type="button" class="secondary" data-action="done">Markér ført i Sensum</button>
         ${remote ? '' : '<button type="button" class="secondary" data-action="delete">Slet</button>'}
       </div>
-      <p class="hint">Oprettet: ${escapeSensumHtml(formatDate(note.createdAt))}${note.completedAt ? ` · Ført: ${escapeSensumHtml(formatDate(note.completedAt))}` : ''}</p>
+      <p class="hint">Oprettet: ${escapeSensumHtml(formatDate(note.createdAt))}</p>
     `;
     attachCardHandlers(card, note);
     sensumNoteList.appendChild(card);
@@ -368,14 +370,14 @@ sensumNoteForm?.addEventListener('submit', (event) => {
   writeSensumNotes(notes);
   sensumText.value = '';
   sensumTitle.value = '';
-  setStatus('Notatet er gemt lokalt og klar til kopiering til Sensum.');
+  setStatus('Notatet er gemt lokalt og vises som aktiv kladde.');
   renderSensumNotes();
 });
 
 clearSensumDoneButton?.addEventListener('click', () => {
   const notes = readSensumNotes().map(normalizeSensumNote).filter((note) => !isDone(note) || note.rowNumber);
   writeSensumNotes(notes);
-  setStatus('Førte lokale notater er ryddet fra listen. Google Sheet-notater ryddes ikke lokalt.');
+  setStatus('Førte lokale notater er ryddet. Førte Google Sheet-notater vises allerede ikke.');
   renderSensumNotes();
 });
 
