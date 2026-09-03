@@ -4,93 +4,21 @@ const ACTIVE_MODULE_KEY = 'arbejdscentral.activeModule.v1';
 
 const sensumStyle = document.createElement('style');
 sensumStyle.textContent = `
-.sensum-note-form {
-  display: grid;
-  gap: 0.75rem;
-}
-
-.sensum-note-grid,
-.sensum-sync-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 10px;
-}
-
-.sensum-sync-grid {
-  grid-template-columns: minmax(0, 1fr) auto auto;
-  align-items: end;
-}
-
-.sensum-note-actions,
-.sensum-note-card-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.sensum-note-list {
-  display: grid;
-  gap: 12px;
-  margin-top: 14px;
-}
-
-.sensum-note-card {
-  border: 1px solid var(--line);
-  border-left: 6px solid var(--accent);
-  border-radius: 20px;
-  background: #fffdf9;
-  padding: 14px;
-}
-
-.sensum-note-card.done {
-  opacity: 0.68;
-  border-left-color: var(--ok);
-}
-
-.sensum-note-card.remote {
-  border-left-color: var(--warn);
-}
-
-.sensum-note-card header {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 10px;
-}
-
-.sensum-note-card pre {
-  white-space: pre-wrap;
-  font: inherit;
-  line-height: 1.45;
-  margin: 0 0 12px;
-}
-
-.sensum-note-empty {
-  border: 1px dashed var(--line);
-  border-radius: 18px;
-  padding: 16px;
-  color: var(--muted);
-  background: #fffdf9;
-}
-
-.sensum-sync-box {
-  border: 1px solid var(--line);
-  border-radius: 18px;
-  padding: 12px;
-  background: #fffdf9;
-}
-
-.sensum-sync-box summary {
-  cursor: pointer;
-  font-weight: 800;
-}
-
-@media (max-width: 820px) {
-  .sensum-note-grid,
-  .sensum-sync-grid {
-    grid-template-columns: 1fr;
-  }
-}
+.sensum-note-form { display: grid; gap: 0.75rem; }
+.sensum-note-grid, .sensum-sync-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+.sensum-sync-grid { grid-template-columns: minmax(0, 1fr) auto auto; align-items: end; }
+.sensum-note-actions, .sensum-note-card-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.sensum-note-list { display: grid; gap: 12px; margin-top: 14px; }
+.sensum-note-card { border: 1px solid var(--line); border-left: 6px solid var(--accent); border-radius: 20px; background: #fffdf9; padding: 14px; }
+.sensum-note-card.done { opacity: 0.68; border-left-color: var(--ok); }
+.sensum-note-card.remote { border-left-color: var(--warn); }
+.sensum-note-card header { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+.sensum-note-card pre { white-space: pre-wrap; font: inherit; line-height: 1.45; margin: 0 0 12px; }
+.sensum-note-empty { border: 1px dashed var(--line); border-radius: 18px; padding: 16px; color: var(--muted); background: #fffdf9; }
+.sensum-sync-box { border: 1px solid var(--line); border-radius: 18px; padding: 12px; background: #fffdf9; }
+.sensum-sync-box summary { cursor: pointer; font-weight: 800; }
+.sensum-manual-copy { position: fixed; left: -9999px; top: 0; width: 1px; height: 1px; opacity: 0; }
+@media (max-width: 820px) { .sensum-note-grid, .sensum-sync-grid { grid-template-columns: 1fr; } }
 `;
 document.head.appendChild(sensumStyle);
 
@@ -176,7 +104,7 @@ const sensumApiEndpoint = document.querySelector('#sensumApiEndpoint');
 const saveSensumEndpointButton = document.querySelector('#saveSensumEndpointButton');
 const syncSensumButton = document.querySelector('#syncSensumButton');
 
-sensumApiEndpoint.value = localStorage.getItem(SENSUM_API_ENDPOINT_KEY) || '';
+if (sensumApiEndpoint) sensumApiEndpoint.value = localStorage.getItem(SENSUM_API_ENDPOINT_KEY) || '';
 
 function readSensumNotes() {
   try {
@@ -192,7 +120,7 @@ function writeSensumNotes(notes) {
 }
 
 function getEndpoint() {
-  return (localStorage.getItem(SENSUM_API_ENDPOINT_KEY) || sensumApiEndpoint.value || '').trim();
+  return (localStorage.getItem(SENSUM_API_ENDPOINT_KEY) || sensumApiEndpoint?.value || '').trim();
 }
 
 function escapeSensumHtml(value) {
@@ -225,16 +153,18 @@ function formatDate(value) {
   const parsed = new Date(value);
   if (Number.isNaN(parsed.getTime())) return value;
   return new Intl.DateTimeFormat('da-DK', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
+    day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
   }).format(parsed);
 }
 
 function setStatus(message) {
-  sensumStatus.textContent = message;
+  if (sensumStatus) sensumStatus.textContent = message;
+}
+
+function isDone(note) {
+  const status = String(note.status || '').toLowerCase();
+  const completed = String(note.completedInSensum || '').toLowerCase();
+  return status === 'ført' || status === 'foert' || completed === 'ja';
 }
 
 function mergeNotes(remoteNotes, localNotes) {
@@ -251,13 +181,127 @@ function getSortedNotes() {
     .sort((a, b) => Number(isDone(a)) - Number(isDone(b)) || new Date(b.createdAt) - new Date(a.createdAt));
 }
 
-function isDone(note) {
-  return note.status === 'ført' || String(note.completedInSensum).toLowerCase() === 'ja';
+async function copyTextToClipboard(text) {
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch {
+    // Fall back below.
+  }
+
+  const textarea = document.createElement('textarea');
+  textarea.className = 'sensum-manual-copy';
+  textarea.value = text;
+  textarea.setAttribute('readonly', '');
+  document.body.appendChild(textarea);
+  textarea.select();
+  textarea.setSelectionRange(0, textarea.value.length);
+  const ok = document.execCommand('copy');
+  textarea.remove();
+  return ok;
+}
+
+function updateLocalNote(noteId, changes) {
+  const notes = readSensumNotes().map(normalizeSensumNote);
+  const updated = notes.map((note) => note.id === noteId ? { ...note, ...changes } : note);
+  writeSensumNotes(updated);
+  renderSensumNotes();
+  return updated.find((note) => note.id === noteId);
+}
+
+async function apiRequest(payload) {
+  const endpoint = getEndpoint();
+  if (!endpoint) throw new Error('Mangler API-endpoint');
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    mode: 'cors',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(payload)
+  });
+  if (!response.ok) throw new Error(`API-fejl: ${response.status}`);
+  const data = await response.json();
+  if (!data.ok) throw new Error(data.error || 'API svarede med fejl');
+  return data;
+}
+
+async function syncFromSheet() {
+  if (!syncSensumButton) return;
+  syncSensumButton.disabled = true;
+  setStatus('Synkroniserer fra SensumKladder...');
+  try {
+    const data = await apiRequest({ action: 'list' });
+    const remoteNotes = (data.notes || []).map((note) => normalizeSensumNote({ ...note, source: 'Google Sheet' }));
+    const localOnly = readSensumNotes().map(normalizeSensumNote).filter((note) => !note.rowNumber);
+    writeSensumNotes(mergeNotes(remoteNotes, localOnly));
+    renderSensumNotes();
+    setStatus(`Synkroniseret: ${remoteNotes.length} kladder hentet fra Google Sheet.`);
+  } catch (error) {
+    setStatus(`Synkronisering fejlede: ${error.message}. Lokal fallback virker stadig.`);
+  } finally {
+    syncSensumButton.disabled = false;
+  }
+}
+
+async function handleCopy(noteId) {
+  const note = readSensumNotes().map(normalizeSensumNote).find((entry) => entry.id === noteId);
+  if (!note) return;
+  const ok = await copyTextToClipboard(note.text);
+  setStatus(ok ? 'Notattekst kopieret til udklipsholderen.' : 'Kunne ikke kopiere automatisk. Markér teksten manuelt og kopier.');
+}
+
+async function handleDone(noteId, button) {
+  const note = readSensumNotes().map(normalizeSensumNote).find((entry) => entry.id === noteId);
+  if (!note) return;
+
+  button.disabled = true;
+  const completedAt = new Date().toISOString();
+  updateLocalNote(noteId, { status: 'ført', completedInSensum: 'Ja', completedAt });
+
+  if (note.rowNumber && getEndpoint()) {
+    try {
+      await apiRequest({ action: 'markDone', rowNumber: note.rowNumber, id: note.id });
+      setStatus('Notatet er markeret som ført i Sensum i Google Sheet.');
+      await syncFromSheet();
+    } catch (error) {
+      setStatus(`Notatet er markeret lokalt. Sheet-opdatering fejlede: ${error.message}`);
+    }
+  } else {
+    setStatus('Notatet er markeret som ført i Sensum lokalt.');
+  }
+}
+
+function handleDelete(noteId) {
+  const notes = readSensumNotes().map(normalizeSensumNote).filter((note) => note.id !== noteId);
+  writeSensumNotes(notes);
+  setStatus('Notatet er slettet fra den lokale liste.');
+  renderSensumNotes();
+}
+
+function attachCardHandlers(card, note) {
+  const copyButton = card.querySelector('[data-action="copy"]');
+  const doneButton = card.querySelector('[data-action="done"]');
+  const deleteButton = card.querySelector('[data-action="delete"]');
+
+  copyButton?.addEventListener('click', (event) => {
+    event.preventDefault();
+    handleCopy(note.id);
+  });
+
+  doneButton?.addEventListener('click', (event) => {
+    event.preventDefault();
+    handleDone(note.id, doneButton);
+  });
+
+  deleteButton?.addEventListener('click', (event) => {
+    event.preventDefault();
+    handleDelete(note.id);
+  });
 }
 
 function renderSensumNotes() {
   const notes = getSortedNotes();
-
   sensumNoteList.innerHTML = '';
 
   if (!notes.length) {
@@ -280,58 +324,18 @@ function renderSensumNotes() {
       </header>
       <pre>${escapeSensumHtml(note.text)}</pre>
       <div class="sensum-note-card-actions">
-        <button type="button" class="secondary" data-action="copy" data-id="${note.id}">Kopiér tekst</button>
-        <button type="button" class="secondary" data-action="done" data-id="${note.id}">${done ? 'Ført i Sensum' : 'Markér ført i Sensum'}</button>
-        ${remote ? '' : `<button type="button" class="secondary" data-action="delete" data-id="${note.id}">Slet</button>`}
+        <button type="button" class="secondary" data-action="copy">Kopiér tekst</button>
+        <button type="button" class="secondary" data-action="done">${done ? 'Ført i Sensum' : 'Markér ført i Sensum'}</button>
+        ${remote ? '' : '<button type="button" class="secondary" data-action="delete">Slet</button>'}
       </div>
       <p class="hint">Oprettet: ${escapeSensumHtml(formatDate(note.createdAt))}${note.completedAt ? ` · Ført: ${escapeSensumHtml(formatDate(note.completedAt))}` : ''}</p>
     `;
+    attachCardHandlers(card, note);
     sensumNoteList.appendChild(card);
   }
 }
 
-async function apiRequest(payload) {
-  const endpoint = getEndpoint();
-  if (!endpoint) throw new Error('Mangler API-endpoint');
-
-  const response = await fetch(endpoint, {
-    method: 'POST',
-    mode: 'cors',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify(payload)
-  });
-
-  if (!response.ok) throw new Error(`API-fejl: ${response.status}`);
-  const data = await response.json();
-  if (!data.ok) throw new Error(data.error || 'API svarede med fejl');
-  return data;
-}
-
-async function syncFromSheet() {
-  syncSensumButton.disabled = true;
-  setStatus('Synkroniserer fra SensumKladder...');
-  try {
-    const data = await apiRequest({ action: 'list' });
-    const remoteNotes = (data.notes || []).map((note) => normalizeSensumNote({ ...note, source: 'Google Sheet' }));
-    const localOnly = readSensumNotes().map(normalizeSensumNote).filter((note) => !note.rowNumber);
-    writeSensumNotes(mergeNotes(remoteNotes, localOnly));
-    renderSensumNotes();
-    setStatus(`Synkroniseret: ${remoteNotes.length} kladder hentet fra Google Sheet.`);
-  } catch (error) {
-    setStatus(`Synkronisering fejlede: ${error.message}. Lokal fallback virker stadig.`);
-  } finally {
-    syncSensumButton.disabled = false;
-  }
-}
-
-async function markRemoteDone(note) {
-  if (!note.rowNumber) return false;
-  await apiRequest({ action: 'markDone', rowNumber: note.rowNumber, id: note.id });
-  await syncFromSheet();
-  return true;
-}
-
-saveSensumEndpointButton.addEventListener('click', () => {
+saveSensumEndpointButton?.addEventListener('click', () => {
   const endpoint = sensumApiEndpoint.value.trim();
   if (!endpoint) {
     localStorage.removeItem(SENSUM_API_ENDPOINT_KEY);
@@ -342,13 +346,12 @@ saveSensumEndpointButton.addEventListener('click', () => {
   setStatus('API-endpoint er gemt. Tryk Synkronisér.');
 });
 
-syncSensumButton.addEventListener('click', syncFromSheet);
+syncSensumButton?.addEventListener('click', syncFromSheet);
 
-sensumNoteForm.addEventListener('submit', (event) => {
+sensumNoteForm?.addEventListener('submit', (event) => {
   event.preventDefault();
   const text = sensumText.value.trim();
   if (!text) return;
-
   const notes = readSensumNotes().map(normalizeSensumNote);
   notes.unshift({
     id: crypto.randomUUID(),
@@ -362,7 +365,6 @@ sensumNoteForm.addEventListener('submit', (event) => {
     completedAt: '',
     source: 'lokal'
   });
-
   writeSensumNotes(notes);
   sensumText.value = '';
   sensumTitle.value = '';
@@ -370,48 +372,7 @@ sensumNoteForm.addEventListener('submit', (event) => {
   renderSensumNotes();
 });
 
-sensumNoteList.addEventListener('click', async (event) => {
-  const button = event.target.closest('button[data-action]');
-  if (!button) return;
-
-  let notes = readSensumNotes().map(normalizeSensumNote);
-  const note = notes.find((entry) => entry.id === button.dataset.id);
-  if (!note) return;
-
-  if (button.dataset.action === 'copy') {
-    await navigator.clipboard.writeText(note.text);
-    setStatus('Notattekst kopieret til udklipsholderen.');
-  }
-
-  if (button.dataset.action === 'done') {
-    button.disabled = true;
-    try {
-      if (note.rowNumber && getEndpoint()) {
-        await markRemoteDone(note);
-        setStatus('Notatet er markeret som ført i Sensum i Google Sheet.');
-      } else {
-        note.status = 'ført';
-        note.completedInSensum = 'Ja';
-        note.completedAt = new Date().toISOString();
-        writeSensumNotes(notes);
-        setStatus('Notatet er markeret som ført i Sensum lokalt.');
-        renderSensumNotes();
-      }
-    } catch (error) {
-      setStatus(`Kunne ikke markere ført: ${error.message}`);
-      button.disabled = false;
-    }
-  }
-
-  if (button.dataset.action === 'delete') {
-    notes = notes.filter((entry) => entry.id !== note.id);
-    writeSensumNotes(notes);
-    setStatus('Notatet er slettet fra den lokale liste.');
-    renderSensumNotes();
-  }
-});
-
-clearSensumDoneButton.addEventListener('click', () => {
+clearSensumDoneButton?.addEventListener('click', () => {
   const notes = readSensumNotes().map(normalizeSensumNote).filter((note) => !isDone(note) || note.rowNumber);
   writeSensumNotes(notes);
   setStatus('Førte lokale notater er ryddet fra listen. Google Sheet-notater ryddes ikke lokalt.');
