@@ -25,6 +25,12 @@ const MODULES = [
     heading: 'Dokument-import'
   },
   {
+    id: 'sensum',
+    label: 'Sensum',
+    title: 'Klargjorte Sensum-notater',
+    heading: 'Sensum-notater'
+  },
+  {
     id: 'memory',
     label: 'Hukommelse',
     title: 'Lokal dokumentationshukommelse',
