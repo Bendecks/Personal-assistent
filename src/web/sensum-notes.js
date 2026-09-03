@@ -150,8 +150,19 @@ sensumPanel.innerHTML = `
 const memoryPanel = [...document.querySelectorAll('h2')]
   .find((heading) => heading.textContent.trim() === 'Hukommelse')
   ?.closest('section');
+const firstGrid = document.querySelector('.grid');
+const quickCapture = document.querySelector('.quick-capture');
+const appShell = document.querySelector('.app-shell');
 
-memoryPanel?.before(sensumPanel);
+if (memoryPanel) {
+  memoryPanel.before(sensumPanel);
+} else if (firstGrid) {
+  firstGrid.before(sensumPanel);
+} else if (quickCapture) {
+  quickCapture.after(sensumPanel);
+} else {
+  appShell?.appendChild(sensumPanel);
+}
 
 const sensumNoteForm = document.querySelector('#sensumNoteForm');
 const sensumCitizen = document.querySelector('#sensumCitizen');
