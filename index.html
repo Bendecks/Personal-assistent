@@ -7,107 +7,20 @@
     <link rel="stylesheet" href="./src/web/styles.css" />
   </head>
   <body>
-    <main class="app-shell">
+    <main class="app-shell read-only-shell">
       <section class="hero">
         <div>
           <p class="eyebrow">AI-drevet arbejdscentral</p>
-          <h1>Én rolig indgang til dagens arbejde</h1>
+          <h1>Overblik fra projektet Arbejde</h1>
           <p class="lead">
-            Fang løse tanker, sortér dem hurtigt, og få næste konkrete handling frem uden at bygge et tungt system.
+            Webappen er nu et læse-dashboard. Nye opgaver, notater og status skrives via ChatGPT og fælles Google Sheet.
           </p>
         </div>
         <aside class="today-card" aria-label="Dagens fokus">
           <span id="todayLabel">I dag</span>
-          <strong id="focusCount">0 aktive</strong>
-          <small>Start med øverste røde eller gule punkt.</small>
+          <strong id="focusCount">Overblik</strong>
+          <small>Start med Sensum-kladden eller næste aktive arbejdspunkt.</small>
         </aside>
-      </section>
-
-      <section class="quick-capture panel">
-        <div class="panel-header">
-          <div>
-            <h2>Hurtig indbakke</h2>
-            <p>Skriv som du tænker. AI-sorteringen hjælper bagefter.</p>
-          </div>
-          <button id="clearDoneButton" class="secondary">Ryd lukkede</button>
-        </div>
-
-        <form id="captureForm" class="capture-form">
-          <label for="captureText">Ny arbejdsnote</label>
-          <textarea id="captureText" rows="4" placeholder="Fx: Husk at spørge Sanne om supervision, læse nye notater ved vagtstart, følge op på Yasmins pictogram..."></textarea>
-          <div class="capture-actions">
-            <select id="captureType" aria-label="Type">
-              <option value="aktiv arbejdsopgave">Aktiv arbejdsopgave</option>
-              <option value="information">Information</option>
-              <option value="venter på svar">Venter på svar</option>
-              <option value="møde/aftale">Møde/aftale</option>
-              <option value="rutine">Rutine</option>
-              <option value="dokumentation">Dokumentation</option>
-              <option value="parkeret">Parkeret</option>
-            </select>
-            <select id="captureUrgency" aria-label="Prioritet">
-              <option value="normal">Normal</option>
-              <option value="høj">Høj</option>
-              <option value="lav">Lav</option>
-            </select>
-            <button type="submit">Gem note</button>
-          </div>
-        </form>
-      </section>
-
-      <section class="panel">
-        <div class="panel-header">
-          <div>
-            <h2>Screenshot-import</h2>
-            <p>Kopiér et screenshot fra Sensum eller Windows, klik i feltet og tryk Ctrl+V.</p>
-          </div>
-        </div>
-
-        <form id="screenshotForm" class="screenshot-form">
-          <div class="screenshot-grid">
-            <div id="pasteTarget" class="paste-target" tabindex="0" role="button" aria-label="Indsæt screenshot fra udklipsholder">
-              <span>Klik her og tryk Ctrl+V</span>
-              <small>Du behøver ikke gemme billedet som fil først. Billedet bruges som preview og kilde i browseren.</small>
-              <button id="clearScreenshotButton" class="secondary mini" type="button">Ryd billede</button>
-            </div>
-
-            <div id="screenshotPreview" class="screenshot-preview empty">Intet billede indsat endnu.</div>
-          </div>
-
-          <details class="fallback-upload">
-            <summary>Fallback: vælg billedfil manuelt</summary>
-            <input id="screenshotFile" type="file" accept="image/*" />
-          </details>
-
-          <div class="capture-actions screenshot-fields">
-            <select id="screenshotType" aria-label="Screenshot-type">
-              <option value="information">Information</option>
-              <option value="aktiv arbejdsopgave">Aktiv arbejdsopgave</option>
-              <option value="venter på svar">Venter på svar</option>
-              <option value="møde/aftale">Møde/aftale</option>
-              <option value="dokumentation">Dokumentation</option>
-              <option value="rutine">Rutine</option>
-              <option value="parkeret">Parkeret</option>
-            </select>
-            <input id="screenshotArea" type="text" placeholder="Område, fx A3 værelse" />
-            <select id="screenshotUrgency" aria-label="Prioritet">
-              <option value="normal">Normal</option>
-              <option value="høj">Høj</option>
-              <option value="lav">Lav</option>
-            </select>
-          </div>
-
-          <label for="screenshotText">Tekst / udtræk fra screenshot</label>
-          <textarea id="screenshotText" rows="5" placeholder="Fx: Helle Klausen · 19-08-2026 21:34 · A3 værelse · Har aftalt med A3 at vi ordner værelset på søndag"></textarea>
-
-          <div class="capture-actions screenshot-fields">
-            <input id="screenshotSender" type="text" placeholder="Afsender, fx Helle Klausen" />
-            <input id="screenshotDate" type="text" placeholder="Dato/tid, fx 19-08-2026 21:34" />
-            <button type="submit">Gem screenshot-info</button>
-          </div>
-
-          <p id="screenshotStatus" class="hint">Klar: klik i pastefeltet og tryk Ctrl+V. Første version læser ikke teksten automatisk.</p>
-        </form>
       </section>
 
       <section class="grid">
@@ -115,23 +28,32 @@
           <div class="panel-header compact">
             <div>
               <h2>Næste handling</h2>
-              <p>Det systemet peger på lige nu.</p>
+              <p>Hentes fra ChatGPT/Google Sheet, når overbliks-API kobles på.</p>
             </div>
           </div>
-          <div id="nextAction" class="next-action empty">Ingen aktive punkter endnu.</div>
+          <div id="nextAction" class="next-action empty">Åbn Sensum-modulet og synkronisér aktive kladder.</div>
         </article>
 
         <article class="panel">
           <div class="panel-header compact">
             <div>
               <h2>Vagtstart</h2>
-              <p>Fast tjekliste.</p>
+              <p>Fast huskeregel.</p>
             </div>
           </div>
-          <div class="checklist">
-            <label><input type="checkbox" data-routine="notes" /> Læs nye notater</label>
-            <label><input type="checkbox" data-routine="goals" /> Genopfrisk mål for børn/unge</label>
-            <label><input type="checkbox" data-routine="time" /> Notér arbejdstid</label>
+          <div class="task-list static-list">
+            <article class="task-card" data-urgency="høj">
+              <div>
+                <div class="task-meta"><span class="pill">rutine</span><span class="pill">høj</span></div>
+                <div class="task-text">Læs nye notater og genopfrisk mål for børn/unge ved vagtstart.</div>
+              </div>
+            </article>
+            <article class="task-card" data-urgency="normal">
+              <div>
+                <div class="task-meta"><span class="pill">regel</span><span class="pill">normal</span></div>
+                <div class="task-text">Arbejdsopgaver holdes adskilt fra privatprojekter.</div>
+              </div>
+            </article>
           </div>
         </article>
       </section>
@@ -140,49 +62,40 @@
         <div class="panel-header">
           <div>
             <h2>Arbejdsoverblik</h2>
-            <p>Aktive ting, ventepunkter, rutiner og dokumentation holdes adskilt.</p>
-          </div>
-          <div class="filters" role="group" aria-label="Filter opgaver">
-            <button class="filter active" data-filter="alle">Alle</button>
-            <button class="filter" data-filter="aktiv arbejdsopgave">Aktive</button>
-            <button class="filter" data-filter="information">Information</button>
-            <button class="filter" data-filter="venter på svar">Venter</button>
-            <button class="filter" data-filter="rutine">Rutiner</button>
-            <button class="filter" data-filter="dokumentation">Dokumentation</button>
+            <p>Dette modul skal læse aktive opgaver, ventepunkter og møder fra Google Sheet. Indtil API'et er udvidet, er Sensum-kladdelisten den aktive automatiske visning.</p>
           </div>
         </div>
-        <div id="taskList" class="task-list"></div>
+        <div id="taskList" class="task-list">
+          <p class="empty">Ingen overbliks-API koblet på endnu.</p>
+        </div>
       </section>
 
       <section class="grid">
         <article class="panel">
           <div class="panel-header compact">
             <div>
-              <h2>AI-klargøring</h2>
-              <p>Kopier denne tekst til ChatGPT, når indbakken skal sorteres dybere.</p>
+              <h2>Datakilde</h2>
+              <p>Fælles hukommelse.</p>
             </div>
           </div>
-          <textarea id="aiPrompt" class="prompt-box" rows="10" readonly></textarea>
-          <button id="copyPromptButton" class="secondary full">Kopiér AI-prompt</button>
+          <a class="sheet-link" href="https://docs.google.com/spreadsheets/d/14RRIg5z6eCYuxzqMwTArWPCM-LtLMAwuvLX7ANzzB84/edit" target="_blank" rel="noreferrer">Åbn ChatGPT Arbejde-hukommelse</a>
+          <p class="hint">ChatGPT skriver relevante kladder og arbejdspunkter i arket. Webappen viser kun overblik.</p>
         </article>
 
         <article class="panel">
           <div class="panel-header compact">
             <div>
-              <h2>Arbejdshukommelse</h2>
-              <p>Ekstern sandhedskilde.</p>
+              <h2>Projektregel</h2>
+              <p>Ingen følsomme data i GitHub.</p>
             </div>
           </div>
-          <a class="sheet-link" href="https://docs.google.com/spreadsheets/d/14RRIg5z6eCYuxzqMwTArWPCM-LtLMAwuvLX7ANzzB84/edit" target="_blank" rel="noreferrer">Åbn ChatGPT Arbejde-hukommelse</a>
-          <p class="hint">Webappen skriver ikke direkte til arket endnu. Brug Hukommelse-modulet til lokalt arkiv, eksport og kopiering til ChatGPT.</p>
+          <p class="hint">Repoet indeholder kun kode, skabeloner og ufølsomme regler. Konkrete notater om børn/unge ligger i Google Sheet/SensumKladder.</p>
         </article>
       </section>
     </main>
 
     <script type="module" src="./src/web/app.js"></script>
-    <script type="module" src="./src/web/document-import.js"></script>
     <script type="module" src="./src/web/sensum-notes.js"></script>
-    <script type="module" src="./src/web/documentation-memory.js"></script>
     <script type="module" src="./src/web/module-navigation.js"></script>
   </body>
 </html>
