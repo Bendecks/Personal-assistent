@@ -4,10 +4,8 @@ const ACTIVE_MODULE_KEY = 'arbejdscentral.activeModule.v1';
 
 const sensumStyle = document.createElement('style');
 sensumStyle.textContent = `
-.sensum-note-form { display: grid; gap: 0.75rem; }
-.sensum-note-grid, .sensum-sync-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-.sensum-sync-grid { grid-template-columns: minmax(0, 1fr) auto auto; align-items: end; }
-.sensum-note-actions, .sensum-note-card-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.sensum-sync-grid { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 10px; align-items: end; }
+.sensum-note-card-actions { display: flex; flex-wrap: wrap; gap: 10px; }
 .sensum-note-list { display: grid; gap: 12px; margin-top: 14px; }
 .sensum-note-card { border: 1px solid var(--line); border-left: 6px solid var(--accent); border-radius: 20px; background: #fffdf9; padding: 14px; }
 .sensum-note-card.remote { border-left-color: var(--warn); }
@@ -16,8 +14,9 @@ sensumStyle.textContent = `
 .sensum-note-empty { border: 1px dashed var(--line); border-radius: 18px; padding: 16px; color: var(--muted); background: #fffdf9; }
 .sensum-sync-box { border: 1px solid var(--line); border-radius: 18px; padding: 12px; background: #fffdf9; }
 .sensum-sync-box summary { cursor: pointer; font-weight: 800; }
+.sensum-dashboard-intro { border: 1px solid var(--line); border-radius: 18px; padding: 12px; background: #fffdf9; margin-bottom: 12px; }
 .sensum-manual-copy { position: fixed; left: -9999px; top: 0; width: 1px; height: 1px; opacity: 0; }
-@media (max-width: 820px) { .sensum-note-grid, .sensum-sync-grid { grid-template-columns: 1fr; } }
+@media (max-width: 820px) { .sensum-sync-grid { grid-template-columns: 1fr; } }
 `;
 document.head.appendChild(sensumStyle);
 
@@ -27,13 +26,18 @@ sensumPanel.innerHTML = `
   <div class="panel-header">
     <div>
       <h2>Sensum-notater</h2>
-      <p>Aktive kladder fra ChatGPT. Når et notat er ført i Sensum, fjernes det fra listen.</p>
+      <p>Rent overblik over aktive kladder fra ChatGPT. Opret og bearbejd notater i samtalen – ikke her.</p>
     </div>
   </div>
 
+  <div class="sensum-dashboard-intro">
+    <strong>Arbejdsgang</strong>
+    <p class="hint">ChatGPT gemmer kladder i Google Sheet-fanen SensumKladder. Webappen viser kun de notater, der mangler at blive ført i Sensum.</p>
+  </div>
+
   <details class="sensum-sync-box" open>
-    <summary>Synkronisering med SensumKladder</summary>
-    <p class="hint">Når API-endpoint er sat, henter modulet aktive kladder fra Google Sheet og kan markere dem som ført.</p>
+    <summary>Synkronisering</summary>
+    <p class="hint">API-endpointet bruges kun til at hente kladder og markere dem som ført. Der oprettes ikke nye notater fra webappen.</p>
     <div class="sensum-sync-grid">
       <label>
         API-endpoint
@@ -44,33 +48,7 @@ sensumPanel.innerHTML = `
     </div>
   </details>
 
-  <form id="sensumNoteForm" class="sensum-note-form">
-    <div class="sensum-note-grid">
-      <input id="sensumCitizen" type="text" placeholder="Barn/ung, fx Magnus" />
-      <select id="sensumCategory" aria-label="Kategori">
-        <option value="Følelser og adfærd">Følelser og adfærd</option>
-        <option value="Familieforhold og baggrund">Familieforhold og baggrund</option>
-        <option value="Venskaber">Venskaber</option>
-        <option value="Selvstændighed">Selvstændighed</option>
-        <option value="Motivation">Motivation</option>
-        <option value="Trivsel">Trivsel</option>
-        <option value="Sundhed">Sundhed</option>
-        <option value="Andet">Andet</option>
-      </select>
-      <input id="sensumTitle" type="text" placeholder="Kort titel, fx Samvær med far" />
-    </div>
-
-    <label for="sensumText">Dagbogsnotat</label>
-    <textarea id="sensumText" rows="9" placeholder="Manuel fallback: indsæt dagbogsnotat her, hvis Sheet-synk ikke er sat op endnu."></textarea>
-
-    <div class="sensum-note-actions">
-      <button type="submit">Gem lokalt</button>
-      <button type="button" id="clearSensumDoneButton" class="secondary">Ryd førte lokale notater</button>
-    </div>
-
-    <p id="sensumStatus" class="hint">Listen viser kun notater, der endnu ikke er ført i Sensum.</p>
-  </form>
-
+  <p id="sensumStatus" class="hint">Listen viser kun notater, der endnu ikke er ført i Sensum.</p>
   <div id="sensumNoteList" class="sensum-note-list"></div>
 `;
 
@@ -91,14 +69,8 @@ if (memoryPanel) {
   appShell?.appendChild(sensumPanel);
 }
 
-const sensumNoteForm = document.querySelector('#sensumNoteForm');
-const sensumCitizen = document.querySelector('#sensumCitizen');
-const sensumCategory = document.querySelector('#sensumCategory');
-const sensumTitle = document.querySelector('#sensumTitle');
-const sensumText = document.querySelector('#sensumText');
 const sensumStatus = document.querySelector('#sensumStatus');
 const sensumNoteList = document.querySelector('#sensumNoteList');
-const clearSensumDoneButton = document.querySelector('#clearSensumDoneButton');
 const sensumApiEndpoint = document.querySelector('#sensumApiEndpoint');
 const saveSensumEndpointButton = document.querySelector('#saveSensumEndpointButton');
 const syncSensumButton = document.querySelector('#syncSensumButton');
@@ -139,7 +111,7 @@ function normalizeSensumNote(note) {
     category: note.category || note.kategori || 'Følelser og adfærd',
     title: note.title || note.titel || '',
     text: note.text || note.notattekst || '',
-    status: note.status || 'klar',
+    status: note.status || 'Kladde',
     completedInSensum: note.completedInSensum || note.foertISensum || '',
     createdAt: note.createdAt || note.oprettet || new Date().toISOString(),
     completedAt: note.completedAt || note.foertDato || '',
@@ -241,7 +213,7 @@ async function syncFromSheet() {
     renderSensumNotes();
     setStatus(`Synkroniseret: ${visibleNotes(remoteNotes).length} aktive kladder hentet fra Google Sheet.`);
   } catch (error) {
-    setStatus(`Synkronisering fejlede: ${error.message}. Lokal fallback virker stadig.`);
+    setStatus(`Synkronisering fejlede: ${error.message}.`);
   } finally {
     syncSensumButton.disabled = false;
   }
@@ -260,7 +232,7 @@ async function handleDone(noteId, button) {
 
   button.disabled = true;
   const completedAt = new Date().toISOString();
-  updateLocalNote(noteId, { status: 'ført', completedInSensum: 'Ja', completedAt });
+  updateLocalNote(noteId, { status: 'Ført', completedInSensum: 'Ja', completedAt });
 
   if (note.rowNumber && getEndpoint()) {
     try {
@@ -268,24 +240,16 @@ async function handleDone(noteId, button) {
       setStatus('Notatet er ført og fjernet fra den aktive liste. Google Sheet er opdateret.');
       await syncFromSheet();
     } catch (error) {
-      setStatus(`Notatet er ført og fjernet lokalt. Sheet-opdatering fejlede: ${error.message}`);
+      setStatus(`Notatet er fjernet lokalt. Sheet-opdatering fejlede: ${error.message}`);
     }
   } else {
     setStatus('Notatet er ført og fjernet fra den aktive liste.');
   }
 }
 
-function handleDelete(noteId) {
-  const notes = readSensumNotes().map(normalizeSensumNote).filter((note) => note.id !== noteId);
-  writeSensumNotes(notes);
-  setStatus('Notatet er slettet fra den lokale liste.');
-  renderSensumNotes();
-}
-
 function attachCardHandlers(card, note) {
   const copyButton = card.querySelector('[data-action="copy"]');
   const doneButton = card.querySelector('[data-action="done"]');
-  const deleteButton = card.querySelector('[data-action="delete"]');
 
   copyButton?.addEventListener('click', (event) => {
     event.preventDefault();
@@ -296,11 +260,6 @@ function attachCardHandlers(card, note) {
     event.preventDefault();
     handleDone(note.id, doneButton);
   });
-
-  deleteButton?.addEventListener('click', (event) => {
-    event.preventDefault();
-    handleDelete(note.id);
-  });
 }
 
 function renderSensumNotes() {
@@ -308,7 +267,7 @@ function renderSensumNotes() {
   sensumNoteList.innerHTML = '';
 
   if (!notes.length) {
-    sensumNoteList.innerHTML = '<div class="sensum-note-empty">Ingen aktive Sensum-kladdder. Førte notater vises ikke her.</div>';
+    sensumNoteList.innerHTML = '<div class="sensum-note-empty">Ingen aktive Sensum-kladder. Førte notater vises ikke her.</div>';
     return;
   }
 
@@ -321,14 +280,13 @@ function renderSensumNotes() {
         <span class="pill">${escapeSensumHtml(note.citizen || 'Ukendt')}</span>
         <span class="pill">${escapeSensumHtml(note.category)}</span>
         <span class="pill">${escapeSensumHtml(note.status)}</span>
-        ${remote ? '<span class="pill">Google Sheet</span>' : '<span class="pill">lokal</span>'}
+        ${remote ? '<span class="pill">Google Sheet</span>' : '<span class="pill">lokal cache</span>'}
         ${note.title ? `<span class="pill">${escapeSensumHtml(note.title)}</span>` : ''}
       </header>
       <pre>${escapeSensumHtml(note.text)}</pre>
       <div class="sensum-note-card-actions">
         <button type="button" class="secondary" data-action="copy">Kopiér tekst</button>
         <button type="button" class="secondary" data-action="done">Markér ført i Sensum</button>
-        ${remote ? '' : '<button type="button" class="secondary" data-action="delete">Slet</button>'}
       </div>
       <p class="hint">Oprettet: ${escapeSensumHtml(formatDate(note.createdAt))}</p>
     `;
@@ -341,7 +299,7 @@ saveSensumEndpointButton?.addEventListener('click', () => {
   const endpoint = sensumApiEndpoint.value.trim();
   if (!endpoint) {
     localStorage.removeItem(SENSUM_API_ENDPOINT_KEY);
-    setStatus('API-endpoint er fjernet. Modulet bruger lokal fallback.');
+    setStatus('API-endpoint er fjernet.');
     return;
   }
   localStorage.setItem(SENSUM_API_ENDPOINT_KEY, endpoint);
@@ -350,45 +308,7 @@ saveSensumEndpointButton?.addEventListener('click', () => {
 
 syncSensumButton?.addEventListener('click', syncFromSheet);
 
-sensumNoteForm?.addEventListener('submit', (event) => {
-  event.preventDefault();
-  const text = sensumText.value.trim();
-  if (!text) return;
-  const notes = readSensumNotes().map(normalizeSensumNote);
-  notes.unshift({
-    id: crypto.randomUUID(),
-    citizen: sensumCitizen.value.trim(),
-    category: sensumCategory.value,
-    title: sensumTitle.value.trim(),
-    text,
-    status: 'klar',
-    completedInSensum: 'Nej',
-    createdAt: new Date().toISOString(),
-    completedAt: '',
-    source: 'lokal'
-  });
-  writeSensumNotes(notes);
-  sensumText.value = '';
-  sensumTitle.value = '';
-  setStatus('Notatet er gemt lokalt og vises som aktiv kladde.');
-  renderSensumNotes();
-});
-
-clearSensumDoneButton?.addEventListener('click', () => {
-  const notes = readSensumNotes().map(normalizeSensumNote).filter((note) => !isDone(note) || note.rowNumber);
-  writeSensumNotes(notes);
-  setStatus('Førte lokale notater er ryddet. Førte Google Sheet-notater vises allerede ikke.');
-  renderSensumNotes();
-});
-
 window.ArbejdscentralSensum = {
-  addNote(note) {
-    const notes = readSensumNotes().map(normalizeSensumNote);
-    notes.unshift(normalizeSensumNote({ ...note, status: note.status || 'klar' }));
-    writeSensumNotes(notes);
-    localStorage.setItem(ACTIVE_MODULE_KEY, 'sensum');
-    renderSensumNotes();
-  },
   sync: syncFromSheet,
   getNotes: readSensumNotes
 };

@@ -8,6 +8,20 @@ Projektet skal hjælpe med roligt og praktisk overblik over arbejdsopgaver, doku
 
 Fokus er næste konkrete handling frem for store systemer.
 
+## Grundmodel
+
+ChatGPT er input- og bearbejdningslaget. Google Sheet er den fælles sandhedskilde. Webappen er et rent overblikslag.
+
+```text
+Samtaler i projektet Arbejde
+→ ChatGPT udleder notater, opgaver, status og næste handlinger
+→ ChatGPT gemmer det vigtige i Google Sheet
+→ Webappen læser fra Google Sheet
+→ Bendix bruger webappen til overblik og enkelte status-handlinger
+```
+
+Webappen skal som hovedregel ikke bruges til fritekst-input. Den skal vise data, viden og overblik, som kommer fra ChatGPT og Google Sheet.
+
 ## Arbejdsmåde
 
 - Svar kort, konkret og på dansk.
@@ -15,6 +29,7 @@ Fokus er næste konkrete handling frem for store systemer.
 - Stil kun opklarende spørgsmål, når det er nødvendigt for næste handling.
 - Skeln tydeligt mellem opgave, information, dokumentation, møde, rutine, parkeret og lukket.
 - Store opgaver deles i små trin på 3-10 minutter.
+- Når noget reelt ændrer status, afsluttes, parkeres eller får ny næste handling, skal Google Sheet opdateres.
 
 ## Dagbogsnotater
 
@@ -39,7 +54,7 @@ Fast anonymiseringsregel:
 
 I barnets eget notat bruges barnets navn. I andre børns notater bruges A-nummer.
 
-## Fælles lager for Sensum-kladdder
+## Fælles lager for Sensum-kladder
 
 Konkrete dagbogsnotater må ikke gemmes i det offentlige GitHub-repo.
 
@@ -66,6 +81,23 @@ Standardstatus ved oprettelse:
 - Ført i Sensum: `Nej`
 - Kilde: `ChatGPT`
 
+## Webapp
+
+Webappen er et dashboard. Den skal ikke være det primære sted, hvor Bendix indtaster viden, dokumentation eller opgaver.
+
+Webappen må gerne have tekniske felter, fx API-endpoint, og enkle status-handlinger, fx:
+
+- Synkronisér
+- Kopiér notattekst
+- Markér ført i Sensum
+- Luk/markér færdig, når status skal sendes tilbage til Google Sheet
+
+Webappen skal ikke som hovedregel have:
+
+- manuel oprettelse af dagbogsnotater
+- manuel fritekst-registrering af arbejdsopgaver
+- parallel lokal hukommelse, som konkurrerer med Google Sheet
+
 ## Webapp og Sensum-notater
 
 Webappens Sensum-modul skal bruge `SensumKladder` som fælles kladdelager, ikke GitHub.
@@ -76,13 +108,14 @@ Målet er dette flow:
 Live-samtale med ChatGPT
 → ChatGPT skriver dagbogsnotater
 → ChatGPT gemmer kladder i SensumKladder
-→ Webappen henter kladderne fra Google Sheet via et sikkert mellemled
+→ Webappen henter aktive kladder fra Google Sheet via et sikkert mellemled
 → Bendix kopierer/overfører notatet til Sensum
 → Bendix markerer notatet som ført
 → Google Sheet opdateres
+→ Notatet forsvinder fra webappens aktive liste
 ```
 
-Webappen må gerne have lokal fallback, men lokal browserhukommelse er ikke hovedløsningen.
+Førte notater vises ikke i webappens aktive overblik, men bevares som status i Google Sheet.
 
 GitHub må kun indeholde:
 
