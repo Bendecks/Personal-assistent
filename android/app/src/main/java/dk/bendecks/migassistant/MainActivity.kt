@@ -242,7 +242,7 @@ private fun UpdateCard(info: UpdateInfo, onUpdate: () -> Unit) {
             Modifier.padding(16.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Column(Modifier.weight(1f)) {
+            Column(Modifier.fillMaxWidth(0.72f)) {
                 Text("Ny version ${info.version}", fontWeight = FontWeight.Bold)
                 Text("Hent opdateringen direkte i appen.")
             }
