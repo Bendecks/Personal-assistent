@@ -33,7 +33,7 @@ jobs:
         with:
           gradle-version: "9.4.1"
       - name: Install Android SDK
-        run: sdkmanager "platforms;android-37" "build-tools;36.0.0"
+        run: /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager "platforms;android-37" "build-tools;36.0.0"
       - name: Validate signing secrets
         env:
           SIGNING_KEY: ${{ secrets.ANDROID_SIGNING_KEY }}
