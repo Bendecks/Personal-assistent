@@ -6,12 +6,12 @@ plugins {
 
 android {
     namespace = "dk.bendecks.migassistant"
-    compileSdk = 37
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "dk.bendecks.migassistant"
         minSdk = 26
-        targetSdk = 36
+        targetSdk = 35
         versionCode = (project.findProperty("VERSION_CODE") as String?)?.toIntOrNull() ?: 1
         versionName = (project.findProperty("VERSION_NAME") as String?) ?: "1.0.0"
     }
@@ -60,12 +60,12 @@ android {
 }
 
 dependencies {
-    val composeBom = platform("androidx.compose:compose-bom:2026.09.00")
+    val composeBom = platform("androidx.compose:compose-bom:2024.09.03")
     implementation(composeBom)
     androidTestImplementation(composeBom)
 
-    implementation("androidx.activity:activity-compose:1.13.0")
-    implementation("androidx.core:core-ktx:1.17.0")
+    implementation("androidx.activity:activity-compose:1.9.2")
+    implementation("androidx.core:core-ktx:1.13.1")
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-tooling-preview")

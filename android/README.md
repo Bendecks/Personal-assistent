@@ -18,13 +18,14 @@ Android tillader ikke almindelige apps at installere en APK helt lydløst. Bruge
 
 ## Byg
 
-Projektet bruger:
+Projektet bruger en konservativ stabil stack for at gøre CI og installation robust:
 
-- AGP 9.2.0
-- Gradle 9.4.1
+- AGP 8.7.3
+- Gradle 8.9
+- Kotlin 2.0.21
 - JDK 17
-- compileSdk 37
-- Jetpack Compose BOM 2026.09.00
+- compileSdk / targetSdk 35
+- Jetpack Compose BOM 2024.09.03
 
 GitHub Actions-workflowet `.github/workflows/android-ci.yml` bygger en debug-APK.
 
