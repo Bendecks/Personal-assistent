@@ -1,6 +1,8 @@
 package dk.bendecks.migassistant
 
+import android.content.Intent
 import android.os.Bundle
+import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -37,6 +39,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.core.app.NotificationManagerCompat
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -45,6 +51,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val store = CaseStore(this)
+        val inboxStore = NotificationInboxStore(this)
 
         setContent {
             MaterialTheme {
@@ -53,6 +60,8 @@ class MainActivity : ComponentActivity() {
                 var editing by remember { mutableStateOf<FollowUpCase?>(null) }
                 var adding by remember { mutableStateOf(false) }
                 var update by remember { mutableStateOf<UpdateInfo?>(null) }
+                var inbox by remember { mutableStateOf(inboxStore.load()) }
+                var showInbox by remember { mutableStateOf(false) }
 
                 LaunchedEffect(Unit) {
                     update = withContext(Dispatchers.IO) {
@@ -93,6 +102,22 @@ class MainActivity : ComponentActivity() {
                             )
                             Spacer(Modifier.height(12.dp))
                         }
+
+                        val notificationAccess = NotificationManagerCompat
+                            .getEnabledListenerPackages(this@MainActivity)
+                            .contains(packageName)
+                        CommunicationInboxCard(
+                            enabled = notificationAccess,
+                            unreadCount = inbox.count { !it.processed },
+                            onEnable = {
+                                startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
+                            },
+                            onOpen = {
+                                inbox = inboxStore.load()
+                                showInbox = true
+                            }
+                        )
+                        Spacer(Modifier.height(12.dp))
 
                         Summary(cases)
                         Spacer(Modifier.height(12.dp))
@@ -137,6 +162,24 @@ class MainActivity : ComponentActivity() {
                     )
                 }
 
+                if (showInbox) {
+                    InboxDialog(
+                        messages = inbox.filter { !it.processed }.sortedByDescending { it.timestamp },
+                        onDismiss = { showInbox = false },
+                        onRefresh = { inbox = inboxStore.load() },
+                        onIgnore = { message ->
+                            inboxStore.markProcessed(message.key)
+                            inbox = inboxStore.load()
+                        },
+                        onCreateCase = { message ->
+                            val newCase = message.toCase((cases.maxOfOrNull { it.id } ?: 0) + 1)
+                            persist(cases + newCase)
+                            inboxStore.markProcessed(message.key)
+                            inbox = inboxStore.load()
+                        }
+                    )
+                }
+
                 editing?.let { current ->
                     CaseEditorDialog(
                         original = current,
@@ -151,6 +194,107 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+}
+
+private fun CapturedMessage.toCase(id: Int): FollowUpCase {
+    val date = Instant.ofEpochMilli(timestamp)
+        .atZone(ZoneId.systemDefault())
+        .toLocalDate()
+        .format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+    val subject = text.lineSequence().firstOrNull { it.isNotBlank() }
+        ?.take(120)
+        .orEmpty()
+        .ifBlank { "Mail fra ${sender.ifBlank { "ukendt afsender" }}" }
+
+    return FollowUpCase(
+        id = id,
+        title = subject,
+        counterpart = sender,
+        channel = "Gmail",
+        status = CaseStatus.ACTION_NEEDED,
+        lastUpdate = date,
+        nextAction = "Vurder og følg op på mailen.",
+        followUpDate = "",
+        notes = text
+    )
+}
+
+@Composable
+private fun CommunicationInboxCard(
+    enabled: Boolean,
+    unreadCount: Int,
+    onEnable: () -> Unit,
+    onOpen: () -> Unit
+) {
+    Card(Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(16.dp)) {
+            Text("Kommunikationsindbakke", fontWeight = FontWeight.Bold)
+            Spacer(Modifier.height(4.dp))
+            if (enabled) {
+                Text("Gmail-overvågning er aktiv · $unreadCount nye")
+                Spacer(Modifier.height(8.dp))
+                Button(onClick = onOpen) {
+                    Text(if (unreadCount > 0) "Åbn indbakke ($unreadCount)" else "Åbn indbakke")
+                }
+            } else {
+                Text("Giv Mig adgang til notifikationer for at opsamle nye Gmail-henvendelser.")
+                Spacer(Modifier.height(8.dp))
+                Button(onClick = onEnable) { Text("Aktivér Gmail-overvågning") }
+            }
+        }
+    }
+}
+
+@Composable
+private fun InboxDialog(
+    messages: List<CapturedMessage>,
+    onDismiss: () -> Unit,
+    onRefresh: () -> Unit,
+    onIgnore: (CapturedMessage) -> Unit,
+    onCreateCase: (CapturedMessage) -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Kommunikationsindbakke") },
+        text = {
+            if (messages.isEmpty()) {
+                Column {
+                    Text("Ingen nye Gmail-notifikationer endnu.")
+                    Spacer(Modifier.height(8.dp))
+                    OutlinedButton(onClick = onRefresh) { Text("Opdatér") }
+                }
+            } else {
+                LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    items(messages, key = { it.key }) { message ->
+                        Card(Modifier.fillMaxWidth()) {
+                            Column(Modifier.padding(12.dp)) {
+                                Text(
+                                    message.sender.ifBlank { "Ukendt afsender" },
+                                    fontWeight = FontWeight.Bold
+                                )
+                                if (message.text.isNotBlank()) {
+                                    Spacer(Modifier.height(4.dp))
+                                    Text(message.text)
+                                }
+                                Spacer(Modifier.height(8.dp))
+                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    Button(onClick = { onCreateCase(message) }) {
+                                        Text("Opret sag")
+                                    }
+                                    TextButton(onClick = { onIgnore(message) }) {
+                                        Text("Ignorér")
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) { Text("Luk") }
+        }
+    )
 }
 
 @Composable
