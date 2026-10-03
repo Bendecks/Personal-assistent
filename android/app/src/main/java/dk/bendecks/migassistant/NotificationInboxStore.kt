@@ -34,7 +34,12 @@ class NotificationInboxStore(context: Context) {
     fun upsert(message: CapturedMessage) {
         val current = load().toMutableList()
         val index = current.indexOfFirst { it.key == message.key }
-        if (index >= 0) current[index] = message else current.add(message)
+        if (index >= 0) {
+            val existing = current[index]
+            current[index] = message.copy(processed = existing.processed)
+        } else {
+            current.add(message)
+        }
         save(current.takeLast(200))
     }
 
