@@ -1,6 +1,6 @@
 # Mig Android
 
-Første Android-del af den personlige assistent.
+Første Android-del af den personlige assistent.\n\nRelease 1.0.0: første signerede installation.
 
 ## V1: korrespondancer og opfølgning
 
