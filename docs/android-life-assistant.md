@@ -1,36 +1,55 @@
 # Android life assistant
 
-## Scope for first version
+## Retning
 
-Første modul er korrespondancer, mails og sager der skal følges op.
+Android-telefonen er hovedmotoren for den personlige assistent. iPhone bruges senere som input-kanal, når data kun findes dér.
 
-Hver sag har et fortløbende sagsnummer og disse felter:
+## Første fungerende version
 
-- titel
+Første modul er kommunikation, sager og opfølgning.
+
+Hver sag har:
+
+- fortløbende sagsnummer
+- titel/emne
 - modpart
 - kanal
 - status
 - seneste udvikling
 - næste handling
-- opfølgningsdato
+- evt. opfølgningsdato
 - noter
 
-Statusmodellen er bevidst lille:
+Statusmodellen er:
 
-1. Skal følges op
+1. Aktiv
 2. Venter på svar
-3. Lukket
+3. Parkeret
+4. Lukket
 
-Det gør det muligt senere at koble Gmail ind uden først at bygge et stort CRM-system.
+Startdata:
 
-## Næste naturlige udvidelse
+- Sag #1: Strøm i køkkenet / Lasse-Hybel
+- Sag #2: Stænkplade, fuger og greb / Bent-Hybel
 
-Når grundappen er stabil, kan Gmail-integration tilføjes som et separat lag:
+Data gemmes lokalt i første version.
 
-- foreslå nye sager ud fra relevante mailtråde
-- knytte en Gmail-tråd til et sagsnummer
-- registrere sidste indgående og udgående mail
-- markere en sag som "Venter på svar" efter afsendelse
-- gøre opmærksom på manglende svar efter en valgt frist
+## Arkitektur fremad
 
-Første version holder data lokalt, så appen kan bruges uden backend.
+Udvidelser bygges på i denne rækkefølge, når kernen er stabil:
+
+1. Gmail-integration
+2. Android Notification Listener
+3. Deling/kopiering ind i appen
+4. Accessibility Service, kun hvor det er stabilt
+5. Screenshots/OCR
+6. Browserbaseret import, hvor det er praktisk
+7. iPhone-genvej "Send til Personlig Assistent" til tekst, links og screenshots
+
+Messenger, SMS/iMessage og Aula må ikke afhænge af scraping alene. Datakilder kombineres efter robusthed: API først, derefter notifikationer/deling og kun derefter Accessibility/OCR/browserimport.
+
+## Autoopdatering
+
+Appen kontrollerer GitHub Releases for nyere versioner og kan hente APK-opdateringen direkte.
+
+Alle release-APK'er signeres med samme private signing key via GitHub Actions secrets.

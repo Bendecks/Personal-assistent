@@ -1,8 +1,9 @@
 package dk.bendecks.migassistant
 
 enum class CaseStatus(val label: String) {
-    ACTION_NEEDED("Skal følges op"),
+    ACTION_NEEDED("Aktiv"),
     WAITING("Venter på svar"),
+    PARKED("Parkeret"),
     CLOSED("Lukket")
 }
 
