@@ -157,34 +157,42 @@ class MainActivity : ComponentActivity() {
 private fun Summary(cases: List<FollowUpCase>) {
     val action = cases.count { it.status == CaseStatus.ACTION_NEEDED }
     val waiting = cases.count { it.status == CaseStatus.WAITING }
+    val parked = cases.count { it.status == CaseStatus.PARKED }
     val closed = cases.count { it.status == CaseStatus.CLOSED }
 
     Card(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp)) {
             Text("Overblik", fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(6.dp))
-            Text("$action skal følges op · $waiting venter på svar · $closed lukket")
+            Text("$action aktive · $waiting venter · $parked parkeret · $closed lukket")
         }
     }
 }
 
 @Composable
 private fun StatusFilters(selected: CaseStatus?, onSelect: (CaseStatus?) -> Unit) {
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            FilterChip(
+                selected = selected == null,
+                onClick = { onSelect(null) },
+                label = { Text("Alle") }
+            )
+            FilterChip(
+                selected = selected == CaseStatus.ACTION_NEEDED,
+                onClick = { onSelect(CaseStatus.ACTION_NEEDED) },
+                label = { Text("Aktiv") }
+            )
+            FilterChip(
+                selected = selected == CaseStatus.WAITING,
+                onClick = { onSelect(CaseStatus.WAITING) },
+                label = { Text("Venter") }
+            )
+        }
         FilterChip(
-            selected = selected == null,
-            onClick = { onSelect(null) },
-            label = { Text("Alle") }
-        )
-        FilterChip(
-            selected = selected == CaseStatus.ACTION_NEEDED,
-            onClick = { onSelect(CaseStatus.ACTION_NEEDED) },
-            label = { Text("Følg op") }
-        )
-        FilterChip(
-            selected = selected == CaseStatus.WAITING,
-            onClick = { onSelect(CaseStatus.WAITING) },
-            label = { Text("Venter") }
+            selected = selected == CaseStatus.PARKED,
+            onClick = { onSelect(CaseStatus.PARKED) },
+            label = { Text("Parkeret") }
         )
     }
 }
@@ -217,12 +225,17 @@ private fun CaseCard(
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (item.status != CaseStatus.ACTION_NEEDED) {
                     OutlinedButton(onClick = { onStatus(CaseStatus.ACTION_NEEDED) }) {
-                        Text("Følg op")
+                        Text("Aktiv")
                     }
                 }
                 if (item.status != CaseStatus.WAITING) {
                     OutlinedButton(onClick = { onStatus(CaseStatus.WAITING) }) {
                         Text("Venter")
+                    }
+                }
+                if (item.status != CaseStatus.PARKED) {
+                    TextButton(onClick = { onStatus(CaseStatus.PARKED) }) {
+                        Text("Parkér")
                     }
                 }
                 if (item.status != CaseStatus.CLOSED) {
