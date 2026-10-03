@@ -196,6 +196,107 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+private fun CapturedMessage.toCase(id: Int): FollowUpCase {
+    val date = Instant.ofEpochMilli(timestamp)
+        .atZone(ZoneId.systemDefault())
+        .toLocalDate()
+        .format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+    val subject = text.lineSequence().firstOrNull { it.isNotBlank() }
+        ?.take(120)
+        .orEmpty()
+        .ifBlank { "Mail fra ${sender.ifBlank { "ukendt afsender" }}" }
+
+    return FollowUpCase(
+        id = id,
+        title = subject,
+        counterpart = sender,
+        channel = "Gmail",
+        status = CaseStatus.ACTION_NEEDED,
+        lastUpdate = date,
+        nextAction = "Vurder og følg op på mailen.",
+        followUpDate = "",
+        notes = text
+    )
+}
+
+@Composable
+private fun CommunicationInboxCard(
+    enabled: Boolean,
+    unreadCount: Int,
+    onEnable: () -> Unit,
+    onOpen: () -> Unit
+) {
+    Card(Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(16.dp)) {
+            Text("Kommunikationsindbakke", fontWeight = FontWeight.Bold)
+            Spacer(Modifier.height(4.dp))
+            if (enabled) {
+                Text("Gmail-overvågning er aktiv · $unreadCount nye")
+                Spacer(Modifier.height(8.dp))
+                Button(onClick = onOpen) {
+                    Text(if (unreadCount > 0) "Åbn indbakke ($unreadCount)" else "Åbn indbakke")
+                }
+            } else {
+                Text("Giv Mig adgang til notifikationer for at opsamle nye Gmail-henvendelser.")
+                Spacer(Modifier.height(8.dp))
+                Button(onClick = onEnable) { Text("Aktivér Gmail-overvågning") }
+            }
+        }
+    }
+}
+
+@Composable
+private fun InboxDialog(
+    messages: List<CapturedMessage>,
+    onDismiss: () -> Unit,
+    onRefresh: () -> Unit,
+    onIgnore: (CapturedMessage) -> Unit,
+    onCreateCase: (CapturedMessage) -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Kommunikationsindbakke") },
+        text = {
+            if (messages.isEmpty()) {
+                Column {
+                    Text("Ingen nye Gmail-notifikationer endnu.")
+                    Spacer(Modifier.height(8.dp))
+                    OutlinedButton(onClick = onRefresh) { Text("Opdatér") }
+                }
+            } else {
+                LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    items(messages, key = { it.key }) { message ->
+                        Card(Modifier.fillMaxWidth()) {
+                            Column(Modifier.padding(12.dp)) {
+                                Text(
+                                    message.sender.ifBlank { "Ukendt afsender" },
+                                    fontWeight = FontWeight.Bold
+                                )
+                                if (message.text.isNotBlank()) {
+                                    Spacer(Modifier.height(4.dp))
+                                    Text(message.text)
+                                }
+                                Spacer(Modifier.height(8.dp))
+                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    Button(onClick = { onCreateCase(message) }) {
+                                        Text("Opret sag")
+                                    }
+                                    TextButton(onClick = { onIgnore(message) }) {
+                                        Text("Ignorér")
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) { Text("Luk") }
+        }
+    )
+}
+
 @Composable
 private fun Summary(cases: List<FollowUpCase>) {
     val action = cases.count { it.status == CaseStatus.ACTION_NEEDED }
