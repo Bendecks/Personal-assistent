@@ -67,6 +67,12 @@ jobs:
           -PVERSION_CODE="${{ steps.version.outputs.code }}"
       - name: Rename APK
         run: mv app/build/outputs/apk/release/app-release.apk "app/build/outputs/apk/release/Mig-${{ steps.version.outputs.name }}.apk"
+      - name: Upload installable APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Mig-1.0.0-install
+          path: android/app/build/outputs/apk/release/Mig-${{ steps.version.outputs.name }}.apk
+          if-no-files-found: error
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
