@@ -33,13 +33,29 @@ class NotificationInboxStore(context: Context) {
 
     fun upsert(message: CapturedMessage) {
         val current = load().toMutableList()
-        val index = current.indexOfFirst { it.key == message.key }
-        if (index >= 0) {
-            val existing = current[index]
-            current[index] = message.copy(processed = existing.processed)
+
+        val exactIndex = current.indexOfFirst { it.key == message.key }
+        if (exactIndex >= 0) {
+            val existing = current[exactIndex]
+            current[exactIndex] = message.copy(processed = existing.processed)
+            save(current.takeLast(200))
+            return
+        }
+
+        val duplicateIndex = current.indexOfLast {
+            it.packageName == message.packageName &&
+                it.sender == message.sender &&
+                it.text == message.text &&
+                kotlin.math.abs(it.timestamp - message.timestamp) <= DUPLICATE_WINDOW_MS
+        }
+
+        if (duplicateIndex >= 0) {
+            val existing = current[duplicateIndex]
+            current[duplicateIndex] = message.copy(processed = existing.processed)
         } else {
             current.add(message)
         }
+
         save(current.takeLast(200))
     }
 
@@ -65,5 +81,6 @@ class NotificationInboxStore(context: Context) {
 
     companion object {
         private const val KEY = "messages_json"
+        private const val DUPLICATE_WINDOW_MS = 5 * 60 * 1000L
     }
 }
