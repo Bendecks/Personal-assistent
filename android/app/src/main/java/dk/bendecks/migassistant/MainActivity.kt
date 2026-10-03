@@ -1,6 +1,8 @@
 package dk.bendecks.migassistant
 
+import android.content.Intent
 import android.os.Bundle
+import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -37,6 +39,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.core.app.NotificationManagerCompat
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -45,6 +51,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val store = CaseStore(this)
+        val inboxStore = NotificationInboxStore(this)
 
         setContent {
             MaterialTheme {
@@ -53,6 +60,8 @@ class MainActivity : ComponentActivity() {
                 var editing by remember { mutableStateOf<FollowUpCase?>(null) }
                 var adding by remember { mutableStateOf(false) }
                 var update by remember { mutableStateOf<UpdateInfo?>(null) }
+                var inbox by remember { mutableStateOf(inboxStore.load()) }
+                var showInbox by remember { mutableStateOf(false) }
 
                 LaunchedEffect(Unit) {
                     update = withContext(Dispatchers.IO) {
@@ -94,6 +103,22 @@ class MainActivity : ComponentActivity() {
                             Spacer(Modifier.height(12.dp))
                         }
 
+                        val notificationAccess = NotificationManagerCompat
+                            .getEnabledListenerPackages(this@MainActivity)
+                            .contains(packageName)
+                        CommunicationInboxCard(
+                            enabled = notificationAccess,
+                            unreadCount = inbox.count { !it.processed },
+                            onEnable = {
+                                startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
+                            },
+                            onOpen = {
+                                inbox = inboxStore.load()
+                                showInbox = true
+                            }
+                        )
+                        Spacer(Modifier.height(12.dp))
+
                         Summary(cases)
                         Spacer(Modifier.height(12.dp))
                         StatusFilters(filter) { filter = it }
@@ -133,6 +158,24 @@ class MainActivity : ComponentActivity() {
                         onSave = {
                             persist(cases + it)
                             adding = false
+                        }
+                    )
+                }
+
+                if (showInbox) {
+                    InboxDialog(
+                        messages = inbox.filter { !it.processed }.sortedByDescending { it.timestamp },
+                        onDismiss = { showInbox = false },
+                        onRefresh = { inbox = inboxStore.load() },
+                        onIgnore = { message ->
+                            inboxStore.markProcessed(message.key)
+                            inbox = inboxStore.load()
+                        },
+                        onCreateCase = { message ->
+                            val newCase = message.toCase((cases.maxOfOrNull { it.id } ?: 0) + 1)
+                            persist(cases + newCase)
+                            inboxStore.markProcessed(message.key)
+                            inbox = inboxStore.load()
                         }
                     )
                 }
