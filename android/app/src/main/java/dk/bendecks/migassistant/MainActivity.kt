@@ -41,8 +41,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.app.NotificationManagerCompat
 import java.time.Instant
+import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
+import java.time.temporal.ChronoUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -133,7 +136,9 @@ class MainActivity : ComponentActivity() {
                         val visible = cases
                             .filter { filter == null || it.status == filter }
                             .sortedWith(
-                                compareBy<FollowUpCase> { it.status == CaseStatus.CLOSED }
+                                compareBy<FollowUpCase> { !it.isFollowUpDue() }
+                                    .thenBy { it.status == CaseStatus.CLOSED }
+                                    .thenBy { it.followUpDateAsLocalDate() ?: LocalDate.MAX }
                                     .thenBy { it.id }
                             )
 
@@ -147,7 +152,7 @@ class MainActivity : ComponentActivity() {
                                     onEdit = { editing = item },
                                     onStatus = { status ->
                                         persist(cases.map {
-                                            if (it.id == item.id) it.copy(status = status) else it
+                                            if (it.id == item.id) it.withStatus(status) else it
                                         })
                                     }
                                 )
@@ -219,6 +224,52 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+}
+
+
+private val displayDateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+private val acceptedFollowUpDateFormatters = listOf(
+    displayDateFormatter,
+    DateTimeFormatter.ISO_LOCAL_DATE
+)
+
+private fun FollowUpCase.followUpDateAsLocalDate(): LocalDate? {
+    val value = followUpDate.trim()
+    if (value.isBlank()) return null
+    acceptedFollowUpDateFormatters.forEach { formatter ->
+        try {
+            return LocalDate.parse(value, formatter)
+        } catch (_: DateTimeParseException) {
+        }
+    }
+    return null
+}
+
+private fun FollowUpCase.isFollowUpDue(today: LocalDate = LocalDate.now()): Boolean =
+    status == CaseStatus.WAITING &&
+        followUpDateAsLocalDate()?.let { !it.isAfter(today) } == true
+
+private fun FollowUpCase.withStatus(newStatus: CaseStatus): FollowUpCase {
+    if (newStatus != CaseStatus.WAITING || followUpDate.isNotBlank()) {
+        return copy(status = newStatus)
+    }
+    val defaultFollowUp = LocalDate.now().plusDays(7).format(displayDateFormatter)
+    return copy(
+        status = newStatus,
+        followUpDate = defaultFollowUp
+    )
+}
+
+private fun FollowUpCase.followUpLabel(today: LocalDate = LocalDate.now()): String? {
+    if (status != CaseStatus.WAITING) return null
+    val date = followUpDateAsLocalDate() ?: return "Mangler opfølgningsdato"
+    val days = ChronoUnit.DAYS.between(today, date)
+    return when {
+        days < 0 -> "Skal følges op · " + (-days) + if (days == -1L) " dag forsinket" else " dage forsinket"
+        days == 0L -> "Skal følges op i dag"
+        days == 1L -> "Følg op i morgen"
+        else -> "Følg op om " + days + " dage"
     }
 }
 
@@ -422,12 +473,29 @@ private fun Summary(cases: List<FollowUpCase>) {
     val waiting = cases.count { it.status == CaseStatus.WAITING }
     val parked = cases.count { it.status == CaseStatus.PARKED }
     val closed = cases.count { it.status == CaseStatus.CLOSED }
+    val due = cases.count { it.isFollowUpDue() }
+    val missingDate = cases.count {
+        it.status == CaseStatus.WAITING && it.followUpDate.trim().isBlank()
+    }
 
     Card(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp)) {
             Text("Overblik", fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(6.dp))
             Text("$action aktive · $waiting venter · $parked parkeret · $closed lukket")
+            if (due > 0) {
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    due.toString() + if (due == 1) " sag skal følges op nu" else " sager skal følges op nu",
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            if (missingDate > 0) {
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    missingDate.toString() + if (missingDate == 1) " sag mangler opfølgningsdato" else " sager mangler opfølgningsdato"
+                )
+            }
         }
     }
 }
@@ -480,6 +548,13 @@ private fun CaseCard(
             if (item.nextAction.isNotBlank()) {
                 Spacer(Modifier.height(6.dp))
                 Text("Næste: ${item.nextAction}")
+            }
+            item.followUpLabel()?.let { label ->
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    label,
+                    fontWeight = if (item.isFollowUpDue()) FontWeight.Bold else FontWeight.Normal
+                )
             }
             if (item.followUpDate.isNotBlank()) {
                 Text("Opfølgning: ${item.followUpDate}")
@@ -603,7 +678,7 @@ private fun CaseEditorDialog(
                     OutlinedTextField(
                         value = followUpDate,
                         onValueChange = { followUpDate = it },
-                        label = { Text("Følg op dato") },
+                        label = { Text("Følg op dato (dd/mm/åååå)") },
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
