@@ -52,6 +52,11 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         val store = CaseStore(this)
         val inboxStore = NotificationInboxStore(this)
+        val initialSharedText = if (intent?.action == Intent.ACTION_SEND && intent.type == "text/plain") {
+            intent.getStringExtra(Intent.EXTRA_TEXT)?.trim().orEmpty()
+        } else {
+            ""
+        }
 
         setContent {
             MaterialTheme {
@@ -62,6 +67,7 @@ class MainActivity : ComponentActivity() {
                 var update by remember { mutableStateOf<UpdateInfo?>(null) }
                 var inbox by remember { mutableStateOf(inboxStore.load()) }
                 var showInbox by remember { mutableStateOf(false) }
+                var sharedText by remember { mutableStateOf(initialSharedText) }
 
                 LaunchedEffect(Unit) {
                     update = withContext(Dispatchers.IO) {
@@ -176,6 +182,18 @@ class MainActivity : ComponentActivity() {
                             persist(cases + newCase)
                             inboxStore.markProcessed(message.key)
                             inbox = inboxStore.load()
+                        }
+                    )
+                }
+
+                if (sharedText.isNotBlank()) {
+                    SharedTextDialog(
+                        text = sharedText,
+                        nextId = (cases.maxOfOrNull { it.id } ?: 0) + 1,
+                        onDismiss = { sharedText = "" },
+                        onCreateCase = { newCase ->
+                            persist(cases + newCase)
+                            sharedText = ""
                         }
                     )
                 }
@@ -521,6 +539,49 @@ private fun CaseEditorDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) { Text("Annuller") }
+        }
+    )
+}
+
+
+@Composable
+private fun SharedTextDialog(
+    text: String,
+    nextId: Int,
+    onDismiss: () -> Unit,
+    onCreateCase: (FollowUpCase) -> Unit
+) {
+    val firstLine = text.lineSequence().firstOrNull { it.isNotBlank() }?.take(120).orEmpty()
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Sendt til Mig") },
+        text = {
+            Column {
+                Text(text.take(1000))
+                Spacer(Modifier.height(8.dp))
+                Text("Opret som sag #$nextId?")
+            }
+        },
+        confirmButton = {
+            Button(onClick = {
+                onCreateCase(
+                    FollowUpCase(
+                        id = nextId,
+                        title = firstLine.ifBlank { "Delt indhold" },
+                        counterpart = "",
+                        channel = "Delt til Mig",
+                        status = CaseStatus.ACTION_NEEDED,
+                        lastUpdate = java.time.LocalDate.now()
+                            .format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                        nextAction = "Vurder og følg op.",
+                        followUpDate = "",
+                        notes = text
+                    )
+                )
+            }) { Text("Opret sag") }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Ignorér") }
         }
     )
 }
