@@ -171,6 +171,7 @@ class MainActivity : ComponentActivity() {
                 if (showInbox) {
                     InboxDialog(
                         messages = inbox.filter { !it.processed }.sortedByDescending { it.timestamp },
+                        cases = cases,
                         onDismiss = { showInbox = false },
                         onRefresh = { inbox = inboxStore.load() },
                         onIgnore = { message ->
@@ -180,6 +181,13 @@ class MainActivity : ComponentActivity() {
                         onCreateCase = { message ->
                             val newCase = message.toCase((cases.maxOfOrNull { it.id } ?: 0) + 1)
                             persist(cases + newCase)
+                            inboxStore.markProcessed(message.key)
+                            inbox = inboxStore.load()
+                        },
+                        onAttachToCase = { message, target ->
+                            persist(cases.map { existing ->
+                                if (existing.id == target.id) existing.withIncomingMessage(message) else existing
+                            })
                             inboxStore.markProcessed(message.key)
                             inbox = inboxStore.load()
                         }
@@ -237,6 +245,85 @@ private fun CapturedMessage.toCase(id: Int): FollowUpCase {
     )
 }
 
+
+private fun FollowUpCase.withIncomingMessage(message: CapturedMessage): FollowUpCase {
+    val date = Instant.ofEpochMilli(message.timestamp)
+        .atZone(ZoneId.systemDefault())
+        .toLocalDate()
+        .format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+    val entry = buildString {
+        append("[")
+        append(date)
+        append(" · Gmail")
+        if (message.sender.isNotBlank()) {
+            append(" · ")
+            append(message.sender)
+        }
+        append("]\n")
+        append(message.text)
+    }
+
+    return copy(
+        status = CaseStatus.ACTION_NEEDED,
+        lastUpdate = date,
+        nextAction = "Læs den nye besked og vurder næste handling.",
+        notes = listOf(notes.trim(), entry.trim()).filter { it.isNotBlank() }.joinToString("\n\n")
+    )
+}
+
+private fun findBestCaseMatch(
+    message: CapturedMessage,
+    cases: List<FollowUpCase>
+): FollowUpCase? {
+    val activeCases = cases.filter { it.status != CaseStatus.CLOSED }
+    if (activeCases.isEmpty()) return null
+
+    val sender = normalizeForMatch(message.sender)
+    val messageTokens = tokenizeForMatch(message.sender + " " + message.text)
+
+    val scored = activeCases.map { candidate ->
+        val counterpart = normalizeForMatch(candidate.counterpart)
+        var score = 0
+
+        if (sender.isNotBlank() && counterpart.isNotBlank()) {
+            if (counterpart.contains(sender) || sender.contains(counterpart)) score += 8
+
+            val senderParts = tokenizeForMatch(message.sender)
+            val counterpartParts = tokenizeForMatch(candidate.counterpart)
+            score += senderParts.intersect(counterpartParts).size * 4
+        }
+
+        val caseTokens = tokenizeForMatch(
+            candidate.title + " " + candidate.counterpart + " " + candidate.notes
+        )
+        score += messageTokens.intersect(caseTokens).size
+
+        candidate to score
+    }.sortedByDescending { it.second }
+
+    val best = scored.firstOrNull() ?: return null
+    val secondScore = scored.getOrNull(1)?.second ?: 0
+
+    return if (best.second >= 4 && best.second >= secondScore + 2) best.first else null
+}
+
+private fun normalizeForMatch(value: String): String =
+    value.lowercase()
+        .replace(Regex("[^\\p{L}\\p{N}]+"), " ")
+        .trim()
+
+private fun tokenizeForMatch(value: String): Set<String> {
+    val ignored = setOf(
+        "gmail", "mail", "hej", "fra", "til", "med", "for", "det", "den", "der",
+        "som", "og", "jeg", "du", "dig", "mig", "har", "kan", "skal", "ved"
+    )
+    return normalizeForMatch(value)
+        .split(" ")
+        .asSequence()
+        .filter { it.length >= 3 && it !in ignored }
+        .toSet()
+}
+
 @Composable
 private fun CommunicationInboxCard(
     enabled: Boolean,
@@ -266,10 +353,12 @@ private fun CommunicationInboxCard(
 @Composable
 private fun InboxDialog(
     messages: List<CapturedMessage>,
+    cases: List<FollowUpCase>,
     onDismiss: () -> Unit,
     onRefresh: () -> Unit,
     onIgnore: (CapturedMessage) -> Unit,
-    onCreateCase: (CapturedMessage) -> Unit
+    onCreateCase: (CapturedMessage) -> Unit,
+    onAttachToCase: (CapturedMessage, FollowUpCase) -> Unit
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -284,6 +373,7 @@ private fun InboxDialog(
             } else {
                 LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     items(messages, key = { it.key }) { message ->
+                        val suggestedCase = findBestCaseMatch(message, cases)
                         Card(Modifier.fillMaxWidth()) {
                             Column(Modifier.padding(12.dp)) {
                                 Text(
@@ -294,10 +384,21 @@ private fun InboxDialog(
                                     Spacer(Modifier.height(4.dp))
                                     Text(message.text)
                                 }
+                                suggestedCase?.let { target ->
+                                    Spacer(Modifier.height(8.dp))
+                                    Text(
+                                        "Forslag: Sag #${target.id} · ${target.title}",
+                                        style = MaterialTheme.typography.labelLarge
+                                    )
+                                    Spacer(Modifier.height(6.dp))
+                                    Button(onClick = { onAttachToCase(message, target) }) {
+                                        Text("Knyt til sag #${target.id}")
+                                    }
+                                }
                                 Spacer(Modifier.height(8.dp))
                                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                    Button(onClick = { onCreateCase(message) }) {
-                                        Text("Opret sag")
+                                    OutlinedButton(onClick = { onCreateCase(message) }) {
+                                        Text("Ny sag")
                                     }
                                     TextButton(onClick = { onIgnore(message) }) {
                                         Text("Ignorér")
