@@ -273,6 +273,16 @@ private fun FollowUpCase.followUpLabel(today: LocalDate = LocalDate.now()): Stri
     }
 }
 
+private fun CapturedMessage.sourceLabel(): String = when (packageName) {
+    "com.google.android.gm" -> "Gmail"
+    "com.facebook.orca" -> "Messenger"
+    "com.google.android.apps.messaging",
+    "com.samsung.android.messaging",
+    "com.android.messaging" -> "SMS"
+    "com.netcompany.aulanativeprivate" -> "Aula"
+    else -> "Besked"
+}
+
 private fun CapturedMessage.toCase(id: Int): FollowUpCase {
     val date = Instant.ofEpochMilli(timestamp)
         .atZone(ZoneId.systemDefault())
@@ -287,7 +297,7 @@ private fun CapturedMessage.toCase(id: Int): FollowUpCase {
         id = id,
         title = subject,
         counterpart = sender,
-        channel = "Gmail",
+        channel = sourceLabel(),
         status = CaseStatus.ACTION_NEEDED,
         lastUpdate = date,
         nextAction = "Vurder og følg op på mailen.",
@@ -305,7 +315,8 @@ private fun FollowUpCase.withIncomingMessage(message: CapturedMessage): FollowUp
     val entry = buildString {
         append("[")
         append(date)
-        append(" · Gmail")
+        append(" · ")
+        append(message.sourceLabel())
         if (message.sender.isNotBlank()) {
             append(" · ")
             append(message.sender)
@@ -387,15 +398,15 @@ private fun CommunicationInboxCard(
             Text("Kommunikationsindbakke", fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(4.dp))
             if (enabled) {
-                Text("Gmail-overvågning er aktiv · $unreadCount nye")
+                Text("Kommunikationsovervågning er aktiv · $unreadCount nye")
                 Spacer(Modifier.height(8.dp))
                 Button(onClick = onOpen) {
                     Text(if (unreadCount > 0) "Åbn indbakke ($unreadCount)" else "Åbn indbakke")
                 }
             } else {
-                Text("Giv Mig adgang til notifikationer for at opsamle nye Gmail-henvendelser.")
+                Text("Giv Mig adgang til notifikationer for at opsamle Gmail, Messenger, SMS og Aula.")
                 Spacer(Modifier.height(8.dp))
-                Button(onClick = onEnable) { Text("Aktivér Gmail-overvågning") }
+                Button(onClick = onEnable) { Text("Aktivér kommunikationsovervågning") }
             }
         }
     }
@@ -417,7 +428,7 @@ private fun InboxDialog(
         text = {
             if (messages.isEmpty()) {
                 Column {
-                    Text("Ingen nye Gmail-notifikationer endnu.")
+                    Text("Ingen nye kommunikationsnotifikationer endnu.")
                     Spacer(Modifier.height(8.dp))
                     OutlinedButton(onClick = onRefresh) { Text("Opdatér") }
                 }
@@ -428,7 +439,7 @@ private fun InboxDialog(
                         Card(Modifier.fillMaxWidth()) {
                             Column(Modifier.padding(12.dp)) {
                                 Text(
-                                    message.sender.ifBlank { "Ukendt afsender" },
+                                    message.sourceLabel() + " · " + message.sender.ifBlank { "Ukendt afsender" },
                                     fontWeight = FontWeight.Bold
                                 )
                                 if (message.text.isNotBlank()) {
