@@ -57,18 +57,7 @@ class CaseStore(context: Context) {
     private fun seed() = listOf(
         FollowUpCase(
             id = 1,
-            title = "Hybel – stænkplade, fuger og greb",
-            counterpart = "Bent / Hybel",
-            channel = "E-mail",
-            status = CaseStatus.WAITING,
-            lastUpdate = "17/09/2026",
-            nextAction = "Følg op hos Bent, hvis der stadig ikke er svar.",
-            followUpDate = "",
-            notes = "Mail sendt 17/9. Intet svar fundet."
-        ),
-        FollowUpCase(
-            id = 2,
-            title = "Køkken-el",
+            title = "Strøm i køkkenet",
             counterpart = "Lasse / Hybel",
             channel = "E-mail / telefon",
             status = CaseStatus.WAITING,
@@ -76,6 +65,17 @@ class CaseStore(context: Context) {
             nextAction = "Følg op hos Lasse/Hybel om løsning og tidspunkt.",
             followUpDate = "",
             notes = "Rykket flere gange. Stadig uløst. Elektriker har foreslået ekstra gruppe og fordeling af ovne/opvaskemaskiner på faser."
+        ),
+        FollowUpCase(
+            id = 2,
+            title = "Stænkplade, fuger og greb",
+            counterpart = "Bent / Hybel",
+            channel = "E-mail",
+            status = CaseStatus.WAITING,
+            lastUpdate = "17/09/2026",
+            nextAction = "Følg op hos Bent, hvis der stadig ikke er svar.",
+            followUpDate = "",
+            notes = "Mail sendt 17/9. Intet svar fundet."
         )
     )
 
